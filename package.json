@@ -20,9 +20,9 @@
   "author": "Oliver Ziemann",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/oliverZ97/DocumentGraphClassifier/issues"
+    "url": "https://github.com/oliverZ97/GraphDocumentClassifier/issues"
   },
-  "homepage": "https://github.com/oliverZ97/DocumentGraphClassifier#readme",
+  "homepage": "https://github.com/oliverZ97/GraphDocumentClassifier#readme",
   "dependencies": {
     "bayes": "0.0.7",
     "express": "^4.17.1",
