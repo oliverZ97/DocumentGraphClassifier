@@ -1,0 +1,3 @@
+function getRandomArticle() {
+    alert("Random")
+}

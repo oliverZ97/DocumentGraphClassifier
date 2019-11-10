@@ -1,0 +1,33 @@
+{
+  "name": "document_graph_classifier",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node httpManager.js",
+    "postserver": "simplehttpserver"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oliverZ97/DocumentGraphClassifier.git"
+  },
+  "keywords": [
+    "GraphDB",
+    "JavaScript",
+    "Classifier"
+  ],
+  "author": "Oliver Ziemann",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oliverZ97/DocumentGraphClassifier/issues"
+  },
+  "homepage": "https://github.com/oliverZ97/DocumentGraphClassifier#readme",
+  "dependencies": {
+    "bayes": "0.0.7",
+    "express": "^4.17.1",
+    "node-sass": "^4.13.0",
+    "request": "^2.88.0",
+    "whatwg-fetch": "^3.0.0"
+  }
+}
