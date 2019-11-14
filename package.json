@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oliverZ97/GraphDocumentClassifier.git"
+    "url": ""
   },
   "keywords": [
     "GraphDB",
@@ -20,9 +20,9 @@
   "author": "Oliver Ziemann",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/oliverZ97/GraphDocumentClassifier/issues"
+    "url": ""
   },
-  "homepage": "https://github.com/oliverZ97/GraphDocumentClassifier#readme",
+  "homepage": "",
   "dependencies": {
     "bayes": "0.0.7",
     "express": "^4.17.1",
