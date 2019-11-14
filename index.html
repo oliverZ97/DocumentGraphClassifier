@@ -3,14 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Graph Document Classifier</title>
+    <title>Document Graph Classifier</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="app.js"></script>
 </head>
 
 <body>
     <div class="app">
-        <h1 class="title_primary">Graph Document Classifier</h1>
+        <h1 class="title_primary">Document Graph Classifier</h1>
         <p class="text_primary">Diese Software ist im Rahmen meiner Abschlussarbeit entstanden. </p>
         <input type="file" name="fileinput" id="fileinput" class="fileinput">
         <label for="fileinput" class="file_label">Choose File</label>
@@ -46,7 +46,7 @@
 
         function startClassifier() {
             let http = new XMLHttpRequest();
-            let url = "http://localhost:3300/gdc/art?id=" + rdm_art
+            let url = "http://localhost:3300/dgc/art?id=" + rdm_art
             http.open("GET", url);
             console.log(url);
             http.send();

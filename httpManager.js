@@ -10,7 +10,7 @@ app.use((req, res, next) => {
 });
 
 //GET Requests to get Articles with ID
-app.get('/gdc/art', (req, res) => {
+app.get('/dgc/art', (req, res) => {
     console.log("url query: " + req.query.id);
     let term = req.query.id || "";
     let request = dbm.createURLFromString(term);
