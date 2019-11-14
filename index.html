@@ -12,6 +12,8 @@
     <div class="app">
         <h1 class="title_primary">Graph Document Classifier</h1>
         <p class="text_primary">Diese Software ist im Rahmen meiner Abschlussarbeit entstanden. </p>
+        <input type="file" name="fileinput" id="fileinput" class="fileinput">
+        <label for="fileinput" class="file_label">Choose File</label>
         <div class="menubar">
             <div class="optionbar">
                 <button class="btn_secondary" id="rdm_art" onclick="getRandomArticle()">Select Random Article</button>
@@ -47,7 +49,6 @@
             let url = "http://localhost:3300/gdc/art?id=" + rdm_art
             http.open("GET", url);
             console.log(url);
-            alert(url);
             http.send();
 
             http.onreadystatechange = (e) => {

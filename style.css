@@ -66,6 +66,33 @@ body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       color: #09d3ac;
   }
+
+  .fileinput {
+      position: absolute;
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      z-index: -1;
+  }
+
+  .fileinput + label {
+      position: absolute;
+      top: 5vh;
+      left: 5vh;
+      width: 200px;
+      height: 60px;
+      border: 1px solid #09d3ac;
+      border-radius: 50px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-size: 2vh;
+      color: #09d3ac;
+  }
+
+  .file_label {
+      position: absolute;
+      top: 5.5vh;
+  }
   
   .flex_center {
     align-self: center;
