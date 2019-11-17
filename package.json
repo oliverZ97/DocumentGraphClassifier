@@ -26,8 +26,11 @@
   "dependencies": {
     "bayes": "0.0.7",
     "express": "^4.17.1",
+    "file-system": "^2.2.2",
+    "node": "^13.1.0",
     "node-sass": "^4.13.0",
     "request": "^2.88.0",
+    "requirejs": "^2.3.6",
     "whatwg-fetch": "^3.0.0"
   }
 }

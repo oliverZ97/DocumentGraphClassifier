@@ -1,4 +1,5 @@
 const request = require("request");
+const fs = require("fs");
 
 const graphURL = "http://localhost:7200/repositories/bachelor"
 //const graphURL = "http://192.168.99.100:7200/repositories/bachelor"

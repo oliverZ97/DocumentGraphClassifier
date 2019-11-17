@@ -5,15 +5,15 @@
     <meta charset="UTF-8">
     <title>Document Graph Classifier</title>
     <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="app.js"></script>
+    <script type="text/javascript" src="app.js"></script>
 </head>
 
 <body>
     <div class="app">
         <h1 class="title_primary">Document Graph Classifier</h1>
         <p class="text_primary">Diese Software ist im Rahmen meiner Abschlussarbeit entstanden. </p>
-        <input type="file" name="fileinput" id="fileinput" class="fileinput">
-        <label for="fileinput" class="file_label">Choose File</label>
+        <input type="file" name="fileinput" id="fileinput" class="fileinput" multiple onchange="getDocumentsFromInput(this.files)">
+        <label for="fileinput" class="file_label" >Choose File</label>
         <div class="menubar">
             <div class="optionbar">
                 <button class="btn_secondary" id="rdm_art" onclick="getRandomArticle()">Select Random Article</button>
@@ -24,41 +24,14 @@
                             </label>
                             <p class="text_secondary">Naive Bayes</p>
                 </div>
-                
             </div>
             <div class="verifybar">
-                <button class="btn_primary" onclick="startClassifier()">Classify!</button>
+                <button class="btn_primary" onclick="startClassifier(this.files)">Classify!</button>
             </div>
         </div>
         <div class="display">
             <p id="art_id"></p>
         </div>
     </div>
-
-    <script>
-        //const http = new HttpManager();
-        var rdm_art = 1;
-
-        function getRandomArticle() {
-            rdm_art = Math.round(Math.random() * 1000, 0)
-            document.getElementById("art_id").innerHTML = "Article #" + rdm_art;
-        }
-
-        function startClassifier() {
-            let http = new XMLHttpRequest();
-            let url = "http://localhost:3300/dgc/art?id=" + rdm_art
-            http.open("GET", url);
-            console.log(url);
-            http.send();
-
-            http.onreadystatechange = (e) => {
-                if (http.readyState === 4) {
-                    console.log("Blub");
-                }
-            }
-        }
-    </script>
 </body>
-
-
 </html>
