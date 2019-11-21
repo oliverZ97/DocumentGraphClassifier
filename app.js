@@ -1,5 +1,5 @@
 var rdm_art = 1;
-var dataImport = require("./dataImport");
+//var dataImport = require("./dataImport");
 
 function getRandomArticle() {
     rdm_art = Math.round(Math.random() * 1000, 0)
@@ -7,6 +7,7 @@ function getRandomArticle() {
 }
 
 function startClassifier() {
+    
     let http = new XMLHttpRequest();
     let url = "http://localhost:3300/dgc/art?id=" + rdm_art
     http.open("GET", url);
