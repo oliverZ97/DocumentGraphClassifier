@@ -1,127 +1,184 @@
 const request = require("request");
 const fs = require("fs");
+const egc = require('./enapso-graphdb-client');
 
-const graphURL = "http://localhost:7200/repositories/dgc"
+//const graphURL = "http://localhost:7200/repositories/dgc"
 //const graphURL = "http://192.168.99.100:7200/repositories/bachelor"
 
 module.exports = class DBManager {
-    constructor(){
-        
+    constructor() {
+
     }
 
-    dbGet(url) {
-        let options = {
-            url: url,
-            headers: {
-                'User-Agent': 'request',
-                'Accept': 'application/sparql-results+json,*/*;q=0.9'
-            }
+    // dbGet(url) {
+    //     let options = {
+    //         url: url,
+    //         headers: {
+    //             'User-Agent': 'request',
+    //             'Accept': 'application/sparql-results+json,*/*;q=0.9'
+    //  /     }
+    //     }
+    //     let promise = new Promise(function (resolve, reject) {
+    //         // Do async job
+    //         console.log("Promise");
+    //         request.get(options, function (err, resp, body) {
+    //             if (err) {
+    //                 console.log("Fail")
+    //                 reject(err);
+    //             } else {
+    //                 console.log("Success");
+    //                 setTimeout(() => resolve(body), 2000);
+    //             }
+    //         })
+    //     })
+    //     return promise;
+    // }
+
+    // dbPost(url) {
+    //     let options = {
+    //         url: url,
+    //         uri: '',
+    //         headers: {
+    //             'User-Agent': 'request',
+    //             'content-type': 'application/x-www-form-urlencoded',
+    //             'Accept': 'application/sparql-results+json,*/*;q=0.9'
+    //         }
+    //     }
+    //     let promise = new Promise(function (resolve, reject) {
+    //         console.log("Promise");
+    //         request.post(options, function (err, resp, body) {
+    //             if (err) {
+    //                 console.log("Fail")
+    //                 reject(err);
+    //             } else {
+    //                 console.log("Success");
+    //                 setTimeout(() => resolve(body), 2000);
+    //             }
+    //         })
+    //     })
+    //     return promise;
+    // }
+
+    insertArticleQueries(article) {
+        let prefix = 'dgc:';
+        this.insertTypeOfArticle(prefix, article);
+        let id = this.insertArticleWithId(prefix, article);
+        let author = this.insertArticleWithAuthor(prefix, article);
+        let category = this.insertArticleWithCategory(prefix, article);
+        let persons = this.insertArticleWithPersons(prefix, article);
+        let locations = this.insertArticleWithLocations(prefix, article);
+        let articleObj = {
+            id: id,
+            author: author,
+            category: category,
+            persons: persons,
+            locations: locations,
         }
-        let promise = new Promise(function(resolve, reject) {
-            // Do async job
-            console.log("Promise");
-            request.get(options, function(err, resp, body) {
-                if (err) {
-                    console.log("Fail")
-                    reject(err);
-                } else {
-                    console.log("Success");
-                    setTimeout(() => resolve(body), 2000);
-                }
-            })
-        })
-        return promise;
+        return articleObj;
     }
 
-    dbPost(url) {
-        let options = {
-            url: url,
-            headers: {
-                'User-Agent': 'request',
-                'content-type' : 'application/x-www-form-urlencoded',
-                'Accept': 'application/sparql-results+json,*/*;q=0.9'
-            }
-        }
-        let promise = new Promise(function(resolve, reject) {
-            // Do async job
-            console.log("Promise");
-            request.post(options, function(err, resp, body) {
-                if (err) {
-                    console.log("Fail")
-                    reject(err);
-                } else {
-                    console.log("Success");
-                    setTimeout(() => resolve(body), 2000);
-                }
-            })
-        })
-        return promise;
+    insertTypeOfArticle(prefix, article) {
+        let triple = '';
+        let subject = prefix + article.externalId;
+        let predicate = 'rdf:Type';
+        let object = prefix + 'Article';
+        triple = subject + ' ' + predicate + ' ' + object + "."
+        let insert = egc.demoInsert(triple);
     }
 
-    createURLFromString(term) {
-        let string = graphURL + "?query=" + term
-        console.log("cufs" + string)
-        return string;
+    insertArticleWithId(prefix, article) {
+        let triple = '';
+        let subject = prefix + article.externalId;
+        let predicate = prefix + 'hasId';
+        let object = article.externalId;
+        triple = subject + ' ' + predicate + ' ' + object + "."
+        let insert = egc.demoInsert(triple);
+        return article.externalId;
     }
 
-    insertArticleQuery(article) {
-        let id = article.externalId;
-        let author = article.authors; //Literal
-        let category = article.category //IRI
+    insertArticleWithAuthor(prefix, article) {
+        //console.log(article);
+        let triple = '';
+        let subject = prefix + article.externalId;
+        let predicate = prefix + 'hasAuthor';
+        let string = article.authors[0].replace(/ /g, '_') || '';
+        let object = string;    //only the first author ist used!
+        triple = subject + ' ' + predicate + ' \"' + object + "\"."
+        let insert = egc.demoInsert(triple);
+        return article.authors[0];
+    }
+
+    insertArticleWithCategory(prefix, article) {
+        let triple = '';
+        let subject = prefix + article.externalId;
+        let predicate = prefix + 'hasCategory';
+        let object = article.category;
+        triple = subject + ' ' + predicate + ' \"' + object + "\"."
+        let insert = egc.demoInsert(triple);
+        return article.category;
+    }
+
+    insertArticleWithPersons(prefix, article) {
         let persons = this.extractLemma(article.linguistics.persons)
-        let locations = this.extractLemma(article.linguistics.geos)
-        //let keywords = this.extractLemma(article.linguistics.keywords)
-        let url = graphURL + "?name=&infer=true&sameAs=true&query=PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX+dgc%3A+%3Chttp%3A%2F%2Fexample.org%2Fdgc%2Fdata%2F%23%3E%0AINSERT+DATA%7B%0A++++GRAPH+%3Chttp%3A%2F%2Fexample.org%2Fdgc%2Fdata%3E+%7B%0A++++++++%3Chttp%3A%2F%2Fexample.org%2Fdgc%2Fdata%2F%23" + id + "%3E+rdf%3AType+dgc%3AArticle%3B%0A++++++++++++++++++++++++++++++++++++++++++++++dgc%3AId+%22" + id + "%22.%0A++++%7D%0A%7D%0A";
-        return url;
-    }
-
-    getAllTriples() {
-        let url = graphURL + "?query=select+*+where+%7B+%0A%09%3Fs+%3Fp+%3Fo+.%0A%7D+limit+100+%0A";
-        return url;
-    }
-
-    createTriple(subject, index, object, isLiteral) {
-        let predicates = [
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Type",
-            "http://example.org/dgc/data/#mentions",
-            "http://example.org/dgc/data/#hasValue",
-            "http://example.org/dgc/data/#hasAuthor",
-            "http://example.org/dgc/data/#hasId",
-            "http://example.org/dgc/data/#hasCategory",
-            "http://example.org/dgc/data/#degree_in",
-            "http://example.org/dgc/data/#degree_out"
-        ]
-        if(isLiteral){
-            let triple = {
-                subject: this.createIRI(subject),
-                predicate: predicates[index],
-                object: object
-            }
-        } else {
-            let triple = {
-                subject: this.createIRI(subject),
-                predicate: predicates[index],
-                object: this.createIRI(object)
-            }
+        for (let i = 0; i < persons.length; i++) {
+            let subject = prefix + article.externalId;
+            let predicate = prefix + 'mentions';
+            let object = prefix + persons[i];
+            let triple = subject + ' ' + predicate + ' ' + object + "."
+            let insert = egc.demoInsert(triple);
         }
-        return triple;
+        this.insertTypeOfEntity(prefix, persons, "Person") 
+        this.insertLiteralValueForEntity(prefix, persons)
+        return persons; 
     }
 
-    createIRI(element) {
-        let base = "http://example.org/dgc/data/#";
-        let IRI = base + element;
-        return IRI;
+    insertArticleWithLocations(prefix, article) {
+        let locations = this.extractLemma(article.linguistics.geos)
+        for (let i = 0; i < locations.length; i++) {
+            let subject = prefix + article.externalId;
+            let predicate = prefix + 'mentions';
+            let object = prefix + locations[i];
+            let triple = subject + ' ' + predicate + ' ' + object + ".";
+            let insert = egc.demoInsert(triple);
+        }
+        this.insertTypeOfEntity(prefix, locations, "Location") 
+        this.insertLiteralValueForEntity(prefix, locations)
+        return locations; 
+    }
+
+    insertLiteralValueForEntity(prefix, array) {
+        let triple = '';
+        for (let i = 0; i < array.length; i++) {
+            let subject = prefix + array[i];
+            let predicate = prefix + 'hasValue';
+            let object = array[i];
+            triple = subject + ' ' + predicate + ' \"' + object + "\"."
+            let insert = egc.demoInsert(triple);
+        }
+        
+        return triple; 
+    }
+
+    insertTypeOfEntity(prefix, array, type) {
+        let triple = '';
+        for (let i = 0; i < array.length; i++) {
+            let subject = prefix + array[i];
+            let predicate = "rdf:Type";
+            let object = prefix + type;
+            triple = subject + ' ' + predicate + ' ' + object + "."
+            let insert = egc.demoInsert(triple);
+        }
+        
+        return triple; 
     }
 
     extractLemma(array) {
         let entities = [];
         array.forEach(element => {
-            entities.push(element.lemma)
+            let entity = element.lemma.replace(/ /g, '_')
+            entities.push(entity)
         });
         return entities;
     }
 
 }
-
-//Insert
-//"?query=PREFIX+rdf%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F1999%2F02%2F22-rdf-syntax-ns%23%3E%0APREFIX+dgc%3A+%3Chttp%3A%2F%2Fexample.org%2Fdgc%2Fdata%2F%23%3E%0AINSERT+%7B%0A++++GRAPH+%3Chttp%3A%2F%2Fexample.org%2Fdgc%2Fdata%3E+%7B%0A++++++++%3Chttp%3A%2F%2Fexample.org%2Fdgc%2Fdata%2F%23" + id + "%3E+rdf%3AType+dgc%3AArticle%3B%0A++++++++++++++++++++++++++++++++++++++++++++++dgc%3AId+%22" + id + "%22.%0A++++%7D%0A%7D%0A"

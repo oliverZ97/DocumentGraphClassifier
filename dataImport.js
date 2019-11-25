@@ -26,12 +26,12 @@ function parseJSONFile() {
 
 function extractDocuments(jsonobj) {
     let documents = jsonobj.documents;
-    let element = documents[0];
-    callPost(element);
+    // let element = documents[0];
+    // callPost(element);
     //callGet();
-    /*documents.forEach(element => {
+    documents.forEach(element => {
         callPost(element);
-    });*/
+    });
 
 }
 
@@ -39,7 +39,7 @@ function callPost(article) {
     var params = article;
     //console.log("PARAMS: ", params);
 
-    let url = "http://localhost:3300/dgc/data"
+    let url = "http://localhost:3300/dgc"
     fetch(url, {
         method: "POST",
         headers: {

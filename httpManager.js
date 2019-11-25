@@ -35,13 +35,15 @@ app.get('/dgc/data',(req,res) => {
 });
 
 
-app.post('/dgc/data',(req,res) => {
+app.post('/dgc',(req,res) => {
     let article = req.body;
-    let request = dbm.insertArticleQuery(article);
-    let promise = dbm.dbPost(request);
-    promise.then((result) => {
-        return res.send(result)
-    })
+    //let request = dbm.insertArticleWithId(article);
+    //let promise = dbm.dbPost(request);
+    let promise = dbm.insertArticleQueries(article);
+    console.log("PROMISE: ",promise);
+    //promise.then((result) => {
+        return res.send(promise)
+    //})
 });
 
 app.listen(3300, () =>
