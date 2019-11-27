@@ -19,7 +19,7 @@ exports.data = methods;
 
 
 function parseJSONFile() {
-    let filestring = fs.readFileSync("./data/kultur.json");
+    let filestring = fs.readFileSync("./data/wirtschaft.json");
     let fileobj = JSON.parse(filestring);
     extractDocuments(fileobj);
 }
@@ -30,14 +30,14 @@ function extractDocuments(jsonobj) {
     // callPost(element);
     //callGet();
     documents.forEach(element => {
-        callPost(element);
+        setTimeout(callPost(element), 2000);
     });
 
 }
 
 function callPost(article) {
     var params = article;
-    //console.log("PARAMS: ", params);
+    //console.log("PARAMS: ", params);Loading...
 
     let url = "http://localhost:3300/dgc"
     fetch(url, {
@@ -47,6 +47,11 @@ function callPost(article) {
         },
         body: JSON.stringify(params)
     })
+    return function() {
+        if(err) {
+            console.log ("err")
+        }
+    }
     //.then(res => res.json())
     //.then(json => console.log(json))
 }

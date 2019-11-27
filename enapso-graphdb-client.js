@@ -101,6 +101,32 @@ where {
             (resp.success ? 'succeeded' : 'failed') +
             ':\n' + JSON.stringify(resp, null, 2));
     },
+
+    countAllArticles: async function () {
+        let query = await this.graphDBEndpoint.query(`
+select (COUNT(*) as ?sum)
+	from <${GRAPHDB_CONTEXT_TEST}>
+where {
+	?s ?p ?o.
+}`
+        );
+        if (query.success) {
+            let resp = await this.graphDBEndpoint.transformBindingsToResultSet(query);
+            console.log("Query succeeded:\n" + JSON.stringify(resp, null, 2));
+        } else {
+            let lMsg = query.message;
+            if (400 === query.statusCode) {
+                lMsg += ', check your query for potential errors';
+            } else if (403 === query.statusCode) {
+                lMsg += ', check if user "' + GRAPHDB_USERNAME +
+                    '" has appropriate access rights to the Repository ' +
+                    '"' + this.graphDBEndpoint.getRepository() + '"';
+            }
+            console.log("Query failed (" + lMsg + "):\n" +
+                JSON.stringify(query, null, 2));
+        }
+        return query;
+    },
     /******************************************************************************************************/
     demo: async function () {
         /*
@@ -200,6 +226,7 @@ where {
         //await this.demoDelete();
 
         //await this.demoQuery();
+        await this.countAllArticles()
     }
 
 }
