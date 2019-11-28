@@ -181,4 +181,21 @@ module.exports = class DBManager {
         return entities;
     }
 
+    getUnclassifiedArticles(nr) {
+        let promise = new Promise(function(resolve, reject) {
+            let un_art = egc.getUnclassifiedArticles();
+            let rdm_art = 'test';
+            un_art.then(function(result){
+                rdm_art = result.results.bindings[nr].article.value;
+                return resolve(rdm_art);
+            })
+            
+        })     
+        return(promise);
+    }
+
+    getAllLocations(){
+
+    }
+
 }

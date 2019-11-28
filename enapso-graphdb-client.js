@@ -127,6 +127,38 @@ where {
         }
         return query;
     },
+
+    getUnclassifiedArticles: async function () {
+        let csv = '';
+        let query = await this.graphDBEndpoint.query(`
+select ?article
+	from <${GRAPHDB_CONTEXT_TEST}>
+where {
+	?article rdf:Type dgc:Article .
+    FILTER (
+        !EXISTS {
+            ?article dgc:hasCategory ?o.
+        }
+    )
+} limit 100`
+        );
+        if (query.success) {
+            resp = await this.graphDBEndpoint.transformBindingsToResultSet(query);
+            //console.log("Query succeeded:\n" + JSON.stringify(resp, null, 2));
+        } else {
+            let lMsg = query.message;
+            if (400 === query.statusCode) {
+                lMsg += ', check your query for potential errors';
+            } else if (403 === query.statusCode) {
+                lMsg += ', check if user "' + GRAPHDB_USERNAME +
+                    '" has appropriate access rights to the Repository ' +
+                    '"' + this.graphDBEndpoint.getRepository() + '"';
+            }
+            console.log("Query failed (" + lMsg + "):\n" +
+                JSON.stringify(query, null, 2));
+        }
+        return query;
+    },
     /******************************************************************************************************/
     demo: async function () {
         /*
@@ -230,9 +262,7 @@ where {
     }
 
 }
-
-console.log("Enapso GraphDB Client Demo");
-
-(async () => {
-    await EnapsoGraphDBClientDemo.demo();
-})();
+console.log("Ready and waiting for Requests...")
+// (async () => {
+//     await EnapsoGraphDBClientDemo.demo();
+// })();

@@ -25,25 +25,25 @@ app.get('/dgc/art', (req, res) => {
     })
 });
 
-app.get('/dgc/data',(req,res) => {
-    let request = dbm.getAllTriples()
-    let promise = dbm.dbGet(request);
-    promise.then((result) => {
-        console.log(result);
-        return res.send(result)
+app.get('/dgc', (req, res) => {
+    let nr = req.query.nr;
+    let promise = dbm.getUnclassifiedArticles(nr);
+    promise.then(function (result) {
+        let resultobj = {
+            id: result
+        }
+        res.send(resultobj);
+    }).catch(function (err) {
+        console.log(err);
     })
 });
 
 
-app.post('/dgc',(req,res) => {
+app.post('/dgc', (req, res) => {
     let article = req.body;
-    //let request = dbm.insertArticleWithId(article);
-    //let promise = dbm.dbPost(request);
     let promise = dbm.insertArticleQueries(article);
-    console.log("PROMISE: ",promise);
-    //promise.then((result) => {
-        return res.send(promise)
-    //})
+    console.log("PROMISE: ", promise);
+    return res.send(promise)
 });
 
 app.listen(3300, () =>
