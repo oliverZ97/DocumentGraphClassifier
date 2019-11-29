@@ -1,9 +1,12 @@
 const bayes = require('bayes');
 const dbManager = require("./dbManager")
-var dbm = new dbManager();
+const dbm = new dbManager();
+const bayesClass = bayes();
 
-let bayesClass = bayes();
 
-function getLocationsFromDB() {
+module.exports = class naivebayes {
     
+    getContentOfArticle() {
+    
+    }
 }

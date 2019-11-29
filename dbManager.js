@@ -1,6 +1,9 @@
 const request = require("request");
 const fs = require("fs");
 const egc = require('./enapso-graphdb-client');
+const striphtml = require("string-strip-html")
+const cenAlg = require("./centrality_algorithms");
+const prefix = 'dgc:'
 
 //const graphURL = "http://localhost:7200/repositories/dgc"
 //const graphURL = "http://192.168.99.100:7200/repositories/bachelor"
@@ -60,20 +63,23 @@ module.exports = class DBManager {
     // }
 
     insertArticleQueries(article) {
-        let prefix = 'dgc:';
+        //let prefix = 'dgc:';
         this.insertTypeOfArticle(prefix, article);
         let id = this.insertArticleWithId(prefix, article);
+        let text = this.insertTextOfArticle(prefix, article);
         let author = this.insertArticleWithAuthor(prefix, article);
         let category = this.insertArticleWithCategory(prefix, article);
-        let persons = this.insertArticleWithPersons(prefix, article);
-        let locations = this.insertArticleWithLocations(prefix, article);
+        //let persons = this.insertArticleWithPersons(prefix, article);
+        //let locations = this.insertArticleWithLocations(prefix, article);
         let articleObj = {
             id: id,
             author: author,
             category: category,
             persons: persons,
             locations: locations,
+            text: text,
         }
+        cenAlg.getAllNodesFromDB();
         return articleObj;
     }
 
@@ -127,9 +133,9 @@ module.exports = class DBManager {
             let triple = subject + ' ' + predicate + ' ' + object + "."
             let insert = egc.demoInsert(triple);
         }
-        this.insertTypeOfEntity(prefix, persons, "Person") 
+        this.insertTypeOfEntity(prefix, persons, "Person")
         this.insertLiteralValueForEntity(prefix, persons)
-        return persons; 
+        return persons;
     }
 
     insertArticleWithLocations(prefix, article) {
@@ -141,9 +147,9 @@ module.exports = class DBManager {
             let triple = subject + ' ' + predicate + ' ' + object + ".";
             let insert = egc.demoInsert(triple);
         }
-        this.insertTypeOfEntity(prefix, locations, "Location") 
+        this.insertTypeOfEntity(prefix, locations, "Location")
         this.insertLiteralValueForEntity(prefix, locations)
-        return locations; 
+        return locations;
     }
 
     insertLiteralValueForEntity(prefix, array) {
@@ -155,8 +161,8 @@ module.exports = class DBManager {
             triple = subject + ' ' + predicate + ' \"' + object + "\"."
             let insert = egc.demoInsert(triple);
         }
-        
-        return triple; 
+
+        return triple;
     }
 
     insertTypeOfEntity(prefix, array, type) {
@@ -168,8 +174,19 @@ module.exports = class DBManager {
             triple = subject + ' ' + predicate + ' ' + object + "."
             let insert = egc.demoInsert(triple);
         }
-        
-        return triple; 
+
+        return triple;
+    }
+
+    insertTextOfArticle(prefix, article) {
+        let triple = '';
+        let subject = prefix + article.externalId;
+        let predicate = prefix + 'hasText';
+        let object = striphtml(article.text);
+        triple = subject + ' ' + predicate + ' \"' + object + "\"."
+        console.log(triple);
+        let insert = egc.demoInsert(triple);
+        return article.text;
     }
 
     extractLemma(array) {
@@ -182,20 +199,47 @@ module.exports = class DBManager {
     }
 
     getUnclassifiedArticles(nr) {
-        let promise = new Promise(function(resolve, reject) {
+        let promise = new Promise(function (resolve, reject) {
             let un_art = egc.getUnclassifiedArticles();
             let rdm_art = 'test';
-            un_art.then(function(result){
+            un_art.then(function (result) {
                 rdm_art = result.results.bindings[nr].article.value;
                 return resolve(rdm_art);
             })
-            
-        })     
-        return(promise);
+
+        })
+        return (promise);
     }
 
-    getAllLocations(){
+    getAllNodes() {
+        let promise = new Promise(function (resolve, reject) {
+            let nodes = egc.getAllNodes();
+            nodes.then(function (result) {
+                return resolve(result);
+            })
+                .catch(function (err) {
+                    console.log(err);
+                })
 
+        })
+        return (promise);
+    }
+
+    insertDegreeCentrality(degreeCentrality) {
+        let object = JSON.parse(JSON.stringify(degreeCentrality));
+        let keys = Object.keys(object)
+        let values = Object.values(object);
+        for (let i = 0; i < keys.length; i++) {
+            console.log(keys[i], values[i]);
+            let uri = keys[i].replace("uri-", prefix);
+            let triple = '';
+            let subject = uri;
+            let predicate = prefix + 'nodeDegree';
+            let object = values[i];
+            triple = subject + ' ' + predicate + ' \"' + object + "\"."
+            console.log(triple);
+            let insert = egc.demoInsert(triple);
+        }
     }
 
 }

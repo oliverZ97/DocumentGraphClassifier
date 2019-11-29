@@ -1,4 +1,5 @@
 //const fetch = require("whatwg-fetch");
+let bayes = require("./naive-bayes");
 
 
 var rdm_art = 1;
@@ -20,19 +21,33 @@ function getRandomArticle() {
     }
 }
 
-function startClassifier() {
-
-    let http = new XMLHttpRequest();
-    let url = "http://localhost:3300/dgc/art?id=" + rdm_art
-    http.open("GET", url);
-    console.log(url);
-    http.send();
-
-    http.onreadystatechange = (e) => {
-        if (http.readyState === 4) {
-            console.log("Blub");
-        }
+function checkState() {
+    let check = false;
+    if(checkbox.checked == true){
+        check = true;
     }
+    return check;
+}
+
+function startClassifier() {
+    let isNaiveBayes = checkState();
+    document.getElementById("checkbox")
+    if(isNaiveBayes) {
+
+    } else {
+
+    }
+    // let http = new XMLHttpRequest();
+    // let url = "http://localhost:3300/dgc/art?id=" + rdm_art
+    // http.open("GET", url);
+    // console.log(url);
+    // http.send();
+
+    // http.onreadystatechange = (e) => {
+    //     if (http.readyState === 4) {
+    //         console.log("Blub");
+    //     }
+    // }
 }
 
 function getDocumentsFromInput(filelist) {

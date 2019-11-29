@@ -29,6 +29,8 @@
     "enapso-graphdb-client": "^1.5.0",
     "express": "^4.17.1",
     "file-system": "^2.2.2",
+    "ngraph.centrality": "^2.0.0",
+    "ngraph.graph": "^19.0.0",
     "node": "^13.1.0",
     "node-fetch": "^2.6.0",
     "node-sass": "^4.13.0",

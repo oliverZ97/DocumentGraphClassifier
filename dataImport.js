@@ -26,12 +26,11 @@ function parseJSONFile() {
 
 function extractDocuments(jsonobj) {
     let documents = jsonobj.documents;
-    // let element = documents[0];
-    // callPost(element);
-    //callGet();
-    documents.forEach(element => {
-        setTimeout(callPost(element), 2000);
-    });
+    let element = documents[1];
+    callPost(element);
+    // documents.forEach(element => {
+    //     setTimeout(callPost(element), 2000);
+    // });
 
 }
 
