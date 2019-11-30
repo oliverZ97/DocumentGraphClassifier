@@ -8,15 +8,11 @@ function getAllNodesFromDB() {
     let nodes = dbm.getAllNodes()
     //console.log("NODES: ", nodes);
     nodes.then(function (result) {
-        let nodeDegrees = dbm.getActualNodeDegree()
-        nodeDegrees.then(function (degree_result){
 
-            //All Nodes in the DB
-            let nodeSets = result.results.bindings;
-            //All Nodes with their NodeDegrees
-            let degreeSets = degree_result.results.bindings;
-            computeCentralityAlgorithms(nodeSets, degreeSets);
-        })
+        //All Nodes in the DB
+        let nodeSets = result.results.bindings;
+        //All Nodes with their NodeDegrees
+        computeCentralityAlgorithms(nodeSets);
     }).catch(function (err) {
         console.log(err);
     })
@@ -43,7 +39,7 @@ function getAllNodesFromDB() {
 //     })
 // }
 
-function computeCentralityAlgorithms(nodeSets, degreeSets) {
+function computeCentralityAlgorithms(nodeSets) {
     nodeSets.forEach(element => {
         let subject = removeUri(element.s.value);
         let object = removeUri(element.o.value);
@@ -51,11 +47,14 @@ function computeCentralityAlgorithms(nodeSets, degreeSets) {
         g.addLink(subject, object);
     })
     var degreeCentrality = centrality.degree(g);
-    var inDegreeCentrality = centrality.degree(g,"in");
+    var inDegreeCentrality = centrality.degree(g, "in");
     var outDegreeCentrality = centrality.degree(g, 'out')
     var betweenessCentrality = centrality.betweenness(g, true);
 
-    dbm.insertDegreeCentrality(degreeCentrality, degreeSets);
+    dbm.insertDegreeCentrality(degreeCentrality);
+    dbm.insertInDegreeCentrality(inDegreeCentrality);
+    dbm.insertOutDegreeCentrality(outDegreeCentrality);
+    dbm.insertBetweenessCentrality(betweenessCentrality);
 }
 
 function removeUri(string) {

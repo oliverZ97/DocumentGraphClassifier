@@ -225,7 +225,7 @@ module.exports = class DBManager {
         return (promise);
     }
 
-    insertDegreeCentrality(degreeCentrality, degreeSets) {
+    insertDegreeCentrality(degreeCentrality) {
         let object = JSON.parse(JSON.stringify(degreeCentrality));
         let keys = Object.keys(object)
         let values = Object.values(object);
@@ -237,6 +237,75 @@ module.exports = class DBManager {
             let triple_new = '';
             let subject = uri;
             let predicate = prefix + 'nodeDegree';
+            let object = values[i];
+            triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
+
+            console.log(triple_new);
+
+            let deleteOld = egc.deleteWhere(subject, predicate);
+            let insert = egc.demoInsert(triple_new);
+            }, 1000)
+        }
+    }
+
+    insertInDegreeCentrality(inDegreeCentrality) {
+        let object = JSON.parse(JSON.stringify(inDegreeCentrality));
+        let keys = Object.keys(object)
+        let values = Object.values(object);
+        //console.log(keys);
+        for (let i = 0; i < keys.length; i++) {
+            setTimeout(function () {
+
+            let uri = keys[i].replace("uri-", prefix);
+            let triple_new = '';
+            let subject = uri;
+            let predicate = prefix + 'inDegree';
+            let object = values[i];
+            triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
+
+            console.log(triple_new);
+
+            let deleteOld = egc.deleteWhere(subject, predicate);
+            let insert = egc.demoInsert(triple_new);
+            }, 1000)
+        }
+    }
+
+    insertOutDegreeCentrality(outDegreeCentrality) {
+        let object = JSON.parse(JSON.stringify(outDegreeCentrality));
+        let keys = Object.keys(object)
+        let values = Object.values(object);
+        //console.log(keys);
+        for (let i = 0; i < keys.length; i++) {
+            setTimeout(function () {
+
+            let uri = keys[i].replace("uri-", prefix);
+            let triple_new = '';
+            let subject = uri;
+            let predicate = prefix + 'outDegree';
+            let object = values[i];
+            triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
+
+            console.log(triple_new);
+
+            let deleteOld = egc.deleteWhere(subject, predicate);
+            let insert = egc.demoInsert(triple_new);
+            }, 1000)
+        }
+    }
+
+    insertBetweenessCentrality(betweenessCentrality) {
+        let object = JSON.parse(JSON.stringify(betweenessCentrality));
+        let keys = Object.keys(object)
+        let values = Object.values(object);
+        //console.log(keys);
+        for (let i = 0; i < keys.length; i++) {
+            setTimeout(function () {
+
+            let uri = keys[i].replace("uri-", prefix);
+            let triple_new = '';
+            let subject = uri;
+            let predicate = prefix + 'betweenessCentrality';
             let object = values[i];
             triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
 
