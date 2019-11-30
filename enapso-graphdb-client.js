@@ -86,6 +86,24 @@ where {
             (resp.success ? 'succeeded' : 'failed') +
             ':\n' + JSON.stringify(resp, null, 2));
     },
+
+    updateNodeDegree: async function (triple_old, triple_new) {
+        let resp = await this.graphDBEndpoint.update(`
+with <${GRAPHDB_CONTEXT_TEST}>
+delete {` +
+            triple_old +
+            `}
+insert {` +
+            triple_new +
+            `}
+where {` +
+            triple_old +
+            `}`
+        );
+        console.log('Update ' +
+            (resp.success ? 'succeeded' : 'failed') +
+            ':\n' + JSON.stringify(resp, null, 2));
+    },
     /******************************************************************************************************/
     demoDelete: async function () {
         let resp = await this.graphDBEndpoint.update(`
@@ -97,6 +115,20 @@ where {
 	?s ?p ?o
 }`
         );
+        console.log('Delete ' +
+            (resp.success ? 'succeeded' : 'failed') +
+            ':\n' + JSON.stringify(resp, null, 2));
+    },
+
+    deleteWhere: async function (subject, predicate) {
+        let resp = await this.graphDBEndpoint.update(`
+with <${GRAPHDB_CONTEXT_TEST}>
+delete 
+{`+ subject + ` ` + predicate + ` ?o }
+where 
+{`+ subject + ` ` + predicate + ` ?o }`
+        );
+        console.log(subject);
         console.log('Delete ' +
             (resp.success ? 'succeeded' : 'failed') +
             ':\n' + JSON.stringify(resp, null, 2));
@@ -193,6 +225,33 @@ select ?s ?o
 	from <${GRAPHDB_CONTEXT_TEST}>
 where {
 	?s ?p ?o
+}limit 10`
+        );
+        if (query.success) {
+            resp = await this.graphDBEndpoint.transformBindingsToResultSet(query);
+            //csv = await this.graphDBEndpoint.transformBindingsToCSV(query);
+            //console.log("Query succeeded:\n" + JSON.stringify(resp, null, 2));
+        } else {
+            let lMsg = query.message;
+            if (400 === query.statusCode) {
+                lMsg += ', check your query for potential errors';
+            } else if (403 === query.statusCode) {
+                lMsg += ', check if user "' + GRAPHDB_USERNAME +
+                    '" has appropriate access rights to the Repository ' +
+                    '"' + this.graphDBEndpoint.getRepository() + '"';
+            }
+            console.log("Query failed (" + lMsg + "):\n" +
+                JSON.stringify(query, null, 2));
+        }
+        return query;
+    },
+
+    getNodeDegree: async function () {
+        let query = await this.graphDBEndpoint.query(`
+select ?s ?o
+	from <${GRAPHDB_CONTEXT_TEST}>
+where { 
+    ?s dgc:nodeDegree ?o.
 }`
         );
         if (query.success) {

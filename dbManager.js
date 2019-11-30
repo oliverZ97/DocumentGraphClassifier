@@ -172,7 +172,7 @@ module.exports = class DBManager {
             let predicate = "rdf:Type";
             let object = prefix + type;
             triple = subject + ' ' + predicate + ' ' + object + "."
-            let insert = egc.demoInsert(triple);
+            let insert = this.callInsertFunctionWithTimeout(triple);
         }
 
         return triple;
@@ -185,7 +185,7 @@ module.exports = class DBManager {
         let object = striphtml(article.text);
         triple = subject + ' ' + predicate + ' \"' + object + "\"."
         console.log(triple);
-        let insert = egc.demoInsert(triple);
+        let insert = this.callInsertFunctionWithTimeout(triple);
         return article.text;
     }
 
@@ -225,21 +225,33 @@ module.exports = class DBManager {
         return (promise);
     }
 
-    insertDegreeCentrality(degreeCentrality) {
+    insertDegreeCentrality(degreeCentrality, degreeSets) {
         let object = JSON.parse(JSON.stringify(degreeCentrality));
         let keys = Object.keys(object)
         let values = Object.values(object);
+        //console.log(keys);
         for (let i = 0; i < keys.length; i++) {
-            console.log(keys[i], values[i]);
+            setTimeout(function () {
+
             let uri = keys[i].replace("uri-", prefix);
-            let triple = '';
+            let triple_new = '';
             let subject = uri;
             let predicate = prefix + 'nodeDegree';
             let object = values[i];
-            triple = subject + ' ' + predicate + ' \"' + object + "\"."
-            console.log(triple);
-            let insert = egc.demoInsert(triple);
+            triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
+
+            console.log(triple_new);
+
+            let deleteOld = egc.deleteWhere(subject, predicate);
+            let insert = egc.demoInsert(triple_new);
+            }, 1000)
         }
+    }
+
+    callInsertFunctionWithTimeout(triple) {
+        setTimeout(function () {
+            egc.demoInsert(triple)
+        }, 1000)
     }
 
 }
