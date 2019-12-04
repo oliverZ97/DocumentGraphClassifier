@@ -54,12 +54,16 @@ function getEntitiesOfArticle() {
             if (http.readyState === 4) {
                 let res = http.response;
                 console.log(res);
-                let table = document.getElementById("entities");
+                let tbody = document.getElementById("tbody");
+                while(tbody.rows.length > 0){
+                    tbody.deleteRow(0);
+                }
                 for(let i = 0; i < res.length; i++){
+                    
                     let row = document.createElement("tr");
                     let td_p = document.createElement("td");
                     let td_o = document.createElement("td");
-                    
+
                     let text_p = document.createTextNode(res[i].p.value);
                     let text_o = document.createTextNode(res[i].o.value)
 
@@ -67,7 +71,7 @@ function getEntitiesOfArticle() {
                     td_o.appendChild(text_o);
                     row.appendChild(td_p);
                     row.appendChild(td_o);
-                    table.appendChild(row);
+                    tbody.appendChild(row);
                 }
             }
         }
