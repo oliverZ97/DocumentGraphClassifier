@@ -2,11 +2,8 @@ const request = require("request");
 const fs = require("fs");
 const egc = require('./enapso-graphdb-client');
 const striphtml = require("string-strip-html")
-const cenAlg = require("./centrality_algorithms");
+//const cenAlg = require("./centrality_algorithms");
 const prefix = 'dgc:'
-
-//const graphURL = "http://localhost:7200/repositories/dgc"
-//const graphURL = "http://192.168.99.100:7200/repositories/bachelor"
 
 module.exports = class DBManager {
     constructor() {
@@ -79,7 +76,7 @@ module.exports = class DBManager {
             locations: locations,
             text: text,
         }
-        cenAlg.getAllNodesFromDB();
+        //cenAlg.getAllNodesFromDB();
         return articleObj;
     }
 
@@ -214,6 +211,20 @@ module.exports = class DBManager {
     getAllNodes() {
         let promise = new Promise(function (resolve, reject) {
             let nodes = egc.getAllNodes();
+            nodes.then(function (result) {
+                return resolve(result);
+            })
+                .catch(function (err) {
+                    console.log(err);
+                })
+
+        })
+        return (promise);
+    }
+
+    getEntitiesOfArticle(art_id) {
+        let promise = new Promise(function (resolve, reject) {
+            let nodes = egc.getEntitiesOfArticĺe(prefix + art_id);
             nodes.then(function (result) {
                 return resolve(result);
             })

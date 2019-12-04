@@ -26,16 +26,29 @@ app.get('/dgc/art', (req, res) => {
 });
 
 app.get('/dgc', (req, res) => {
-    let nr = req.query.nr;
-    let promise = dbm.getUnclassifiedArticles(nr);
-    promise.then(function (result) {
-        let resultobj = {
-            id: result
-        }
-        res.send(resultobj);
-    }).catch(function (err) {
-        console.log(err);
-    })
+    if(req.query.nr !== undefined) {
+        let nr = req.query.nr;
+        let promise = dbm.getUnclassifiedArticles(nr);
+        promise.then(function (result) {
+            let resultobj = {
+                id: result
+            }
+            res.send(resultobj);
+        }).catch(function (err) {
+            console.log(err);
+        })
+    } else if(req.query.art !== undefined) {
+        let art_id = req.query.art;
+        console.log("id: ",art_id);
+        let promise = dbm.getEntitiesOfArticle(art_id);
+        promise.then(function (result) {
+            //console.log("RESULT: ", result.results.bindings);
+            res.send(result.results.bindings);
+        }).catch(function (err) {
+            console.log(err);
+        })
+    }
+
 });
 
 

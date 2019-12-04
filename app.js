@@ -23,7 +23,7 @@ function getRandomArticle() {
 
 function checkState() {
     let check = false;
-    if(checkbox.checked == true){
+    if (checkbox.checked == true) {
         check = true;
     }
     return check;
@@ -32,22 +32,46 @@ function checkState() {
 function startClassifier() {
     let isNaiveBayes = checkState();
     document.getElementById("checkbox")
-    if(isNaiveBayes) {
+    if (isNaiveBayes) {
 
     } else {
-
+        getEntitiesOfArticle()
     }
-    // let http = new XMLHttpRequest();
-    // let url = "http://localhost:3300/dgc/art?id=" + rdm_art
-    // http.open("GET", url);
-    // console.log(url);
-    // http.send();
+}
 
-    // http.onreadystatechange = (e) => {
-    //     if (http.readyState === 4) {
-    //         console.log("Blub");
-    //     }
-    // }
+function getEntitiesOfArticle() {
+    let article_iri = document.getElementById("art_id").innerHTML.replace("http://example.org/dgc#", "");
+    if (article_iri === "") {
+        document.getElementById("art_id").innerHTML = "Please select an Article first!"
+    } else {
+        let http = new XMLHttpRequest();
+        let url = "http://localhost:3300/dgc?art=" + article_iri;
+        http.responseType = 'json'
+        http.open("GET", url);
+        http.send();
+
+        http.onreadystatechange = (e) => {
+            if (http.readyState === 4) {
+                let res = http.response;
+                console.log(res);
+                let table = document.getElementById("entities");
+                for(let i = 0; i < res.length; i++){
+                    let row = document.createElement("tr");
+                    let td_p = document.createElement("td");
+                    let td_o = document.createElement("td");
+                    
+                    let text_p = document.createTextNode(res[i].p.value);
+                    let text_o = document.createTextNode(res[i].o.value)
+
+                    td_p.appendChild(text_p);
+                    td_o.appendChild(text_o);
+                    row.appendChild(td_p);
+                    row.appendChild(td_o);
+                    table.appendChild(row);
+                }
+            }
+        }
+    }
 }
 
 function getDocumentsFromInput(filelist) {

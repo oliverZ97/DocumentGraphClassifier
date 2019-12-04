@@ -1,6 +1,5 @@
 const bayes = require('bayes');
-const dbManager = require("./dbManager")
-const dbm = new dbManager();
+const dbm = require("./dbManager")
 const bayesClass = bayes();
 
 

@@ -26,11 +26,21 @@
                 </div>
             </div>
             <div class="verifybar">
-                <button class="btn_primary" onclick="startClassifier(this.files)">Classify!</button>
+                <button class="btn_primary" onclick="startClassifier()">Classify!</button>
             </div>
         </div>
         <div class="display">
             <p id="art_id"></p>
+            <p>Entitäten</p>
+            <table id="entities">
+                <thead>
+                    <th>Predicate</th>
+                    <th>Value</th>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
         </div>
     </div>
 </body>
