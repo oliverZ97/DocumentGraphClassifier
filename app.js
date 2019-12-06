@@ -36,6 +36,8 @@ function startClassifier() {
 
     } else {
         getEntitiesOfArticle()
+        console.log("BACK")
+        computeArticleSumsOfEntities()
     }
 }
 
@@ -53,19 +55,20 @@ function getEntitiesOfArticle() {
         http.onreadystatechange = (e) => {
             if (http.readyState === 4) {
                 let res = http.response;
-                console.log(res);
+                //console.log(res);
+
                 let tbody = document.getElementById("tbody");
-                while(tbody.rows.length > 0){
+                while (tbody.rows.length > 0) {
                     tbody.deleteRow(0);
                 }
-                for(let i = 0; i < res.length; i++){
-                    
+                for (let i = 0; i < res.length; i++) {
+
                     let row = document.createElement("tr");
                     let td_p = document.createElement("td");
                     let td_o = document.createElement("td");
 
                     let text_p = document.createTextNode(res[i].p.value);
-                    let text_o = document.createTextNode(res[i].o.value)
+                    let text_o = document.createTextNode(res[i].o.value);
 
                     td_p.appendChild(text_p);
                     td_o.appendChild(text_o);
@@ -74,7 +77,9 @@ function getEntitiesOfArticle() {
                     tbody.appendChild(row);
                 }
             }
+            //computeArticleSumsOfEntities()
         }
+        
     }
 }
 
@@ -84,4 +89,34 @@ function getDocumentsFromInput(filelist) {
     for (let i = 0; i < files.length; i++) {
         console.log("File: ", files.item(i));
     }
+}
+
+function computeArticleSumsOfEntities() {
+    //let rows = Array.from(tbody.children);
+    let tds = Array.from(document.getElementsByTagName("td"))
+    // console.log(rows.length)
+    // rows.forEach(function (row) {
+    //     let tds = Array.from(row.children);
+        console.log(tds.length)
+        for(let i = 1; i < tds.length; i + 2){
+            console.log(i)
+            console.log(tds[i].innerHTML);
+        }
+    // })
+    // entity.foreach(element => {
+    //     console.log("go!")
+    //     let entity = element.o.value
+    //     let http = new XMLHttpRequest();
+    //     let url = "http://localhost:3300/dgc?entity=" + entity;
+    //     http.responseType = 'json'
+    //     http.open("GET", url);
+    //     http.send();
+
+    //     http.onreadystatechange = (e) => {
+    //         if (http.readyState === 4) {
+    //             let res = http.response.id;
+    //             document.getElementById("art_id").innerHTML = res;
+    //         }
+    //     }
+    // })
 }

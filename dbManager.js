@@ -226,6 +226,7 @@ module.exports = class DBManager {
         let promise = new Promise(function (resolve, reject) {
             let nodes = egc.getEntitiesOfArticĺe(prefix + art_id);
             nodes.then(function (result) {
+
                 return resolve(result);
             })
                 .catch(function (err) {
@@ -244,17 +245,17 @@ module.exports = class DBManager {
         for (let i = 0; i < keys.length; i++) {
             setTimeout(function () {
 
-            let uri = keys[i].replace("uri-", prefix);
-            let triple_new = '';
-            let subject = uri;
-            let predicate = prefix + 'nodeDegree';
-            let object = values[i];
-            triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
+                let uri = keys[i].replace("uri-", prefix);
+                let triple_new = '';
+                let subject = uri;
+                let predicate = prefix + 'nodeDegree';
+                let object = values[i];
+                triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
 
-            console.log(triple_new);
+                console.log(triple_new);
 
-            let deleteOld = egc.deleteWhere(subject, predicate);
-            let insert = egc.demoInsert(triple_new);
+                let deleteOld = egc.deleteWhere(subject, predicate);
+                let insert = egc.demoInsert(triple_new);
             }, 1000)
         }
     }
@@ -267,17 +268,17 @@ module.exports = class DBManager {
         for (let i = 0; i < keys.length; i++) {
             setTimeout(function () {
 
-            let uri = keys[i].replace("uri-", prefix);
-            let triple_new = '';
-            let subject = uri;
-            let predicate = prefix + 'inDegree';
-            let object = values[i];
-            triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
+                let uri = keys[i].replace("uri-", prefix);
+                let triple_new = '';
+                let subject = uri;
+                let predicate = prefix + 'inDegree';
+                let object = values[i];
+                triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
 
-            console.log(triple_new);
+                console.log(triple_new);
 
-            let deleteOld = egc.deleteWhere(subject, predicate);
-            let insert = egc.demoInsert(triple_new);
+                let deleteOld = egc.deleteWhere(subject, predicate);
+                let insert = egc.demoInsert(triple_new);
             }, 1000)
         }
     }
@@ -290,17 +291,17 @@ module.exports = class DBManager {
         for (let i = 0; i < keys.length; i++) {
             setTimeout(function () {
 
-            let uri = keys[i].replace("uri-", prefix);
-            let triple_new = '';
-            let subject = uri;
-            let predicate = prefix + 'outDegree';
-            let object = values[i];
-            triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
+                let uri = keys[i].replace("uri-", prefix);
+                let triple_new = '';
+                let subject = uri;
+                let predicate = prefix + 'outDegree';
+                let object = values[i];
+                triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
 
-            console.log(triple_new);
+                console.log(triple_new);
 
-            let deleteOld = egc.deleteWhere(subject, predicate);
-            let insert = egc.demoInsert(triple_new);
+                let deleteOld = egc.deleteWhere(subject, predicate);
+                let insert = egc.demoInsert(triple_new);
             }, 1000)
         }
     }
@@ -313,19 +314,49 @@ module.exports = class DBManager {
         for (let i = 0; i < keys.length; i++) {
             setTimeout(function () {
 
-            let uri = keys[i].replace("uri-", prefix);
-            let triple_new = '';
-            let subject = uri;
-            let predicate = prefix + 'betweenessCentrality';
-            let object = values[i];
-            triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
+                let uri = keys[i].replace("uri-", prefix);
+                let triple_new = '';
+                let subject = uri;
+                let predicate = prefix + 'betweenessCentrality';
+                let object = values[i];
+                triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
 
-            console.log(triple_new);
+                console.log(triple_new);
 
-            let deleteOld = egc.deleteWhere(subject, predicate);
-            let insert = egc.demoInsert(triple_new);
+                let deleteOld = egc.deleteWhere(subject, predicate);
+                let insert = egc.demoInsert(triple_new);
             }, 1000)
         }
+    }
+
+    getSumOfArticlesInCategoryWithEntity(entity) {
+        console.log("TEEEEST!")
+        let promise = new Promise(function (resolve, reject) {
+            let wirtschaft = egc.getSumOfArticlesInCategoryWithEntity(entity, "Wirtschaft");
+            let politik = egc.getSumOfArticlesInCategoryWithEntity(entity, "Politik");
+            let kultur = egc.getSumOfArticlesInCategoryWithEntity(entity, "Kultur");
+            let sport = egc.getSumOfArticlesInCategoryWithEntity(entity, "Sport");
+
+            wirtschaft.then(function (result_w) {
+                console.log("Wirtschaft", result_w);
+                politik.then(function (result_p) {
+                    kultur.then(function (result_k) {
+                        sport.then(function (result_s) {
+                            console.log("Wirtschaft", result_w);
+                            console.log("Politik", result_p);
+                            console.log("Kultur", result_k);
+                            console.log("Sport", result_s);
+                            return resolve(result);
+                        })
+                    })
+                })
+            })
+                .catch(function (err) {
+                    console.log(err);
+                })
+
+        })
+        return (promise);
     }
 
     callInsertFunctionWithTimeout(triple) {

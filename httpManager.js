@@ -47,6 +47,16 @@ app.get('/dgc', (req, res) => {
         }).catch(function (err) {
             console.log(err);
         })
+    } else if(req.query.entity !== undefined) {
+        let entity = req.query.entity;
+        console.log("entity: " ,entity);
+        let promise = dbm.getSumOfArticlesInCategoryWithEntity(entity);
+        promise.then(function (result) {
+            //console.log("RESULT: ", result.results.bindings);
+            res.send(result.results.bindings);
+        }).catch(function (err) {
+            console.log(err);
+        })
     }
 
 });
