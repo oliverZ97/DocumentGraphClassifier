@@ -37,7 +37,7 @@ function startClassifier() {
     } else {
         getEntitiesOfArticle()
         console.log("BACK")
-        computeArticleSumsOfEntities()
+        //computeArticleSumsOfEntities()
     }
 }
 
@@ -77,7 +77,7 @@ function getEntitiesOfArticle() {
                     tbody.appendChild(row);
                 }
             }
-            //computeArticleSumsOfEntities()
+            computeArticleSumsOfEntities()
         }
         
     }

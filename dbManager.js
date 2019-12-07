@@ -1,7 +1,6 @@
 const request = require("request");
 const fs = require("fs");
 const egc = require('./enapso-graphdb-client');
-const striphtml = require("string-strip-html")
 //const cenAlg = require("./centrality_algorithms");
 const prefix = 'dgc:'
 
@@ -9,55 +8,6 @@ module.exports = class DBManager {
     constructor() {
 
     }
-
-    // dbGet(url) {
-    //     let options = {
-    //         url: url,
-    //         headers: {
-    //             'User-Agent': 'request',
-    //             'Accept': 'application/sparql-results+json,*/*;q=0.9'
-    //  /     }
-    //     }
-    //     let promise = new Promise(function (resolve, reject) {
-    //         // Do async job
-    //         console.log("Promise");
-    //         request.get(options, function (err, resp, body) {
-    //             if (err) {
-    //                 console.log("Fail")
-    //                 reject(err);
-    //             } else {
-    //                 console.log("Success");
-    //                 setTimeout(() => resolve(body), 2000);
-    //             }
-    //         })
-    //     })
-    //     return promise;
-    // }
-
-    // dbPost(url) {
-    //     let options = {
-    //         url: url,
-    //         uri: '',
-    //         headers: {
-    //             'User-Agent': 'request',
-    //             'content-type': 'application/x-www-form-urlencoded',
-    //             'Accept': 'application/sparql-results+json,*/*;q=0.9'
-    //         }
-    //     }
-    //     let promise = new Promise(function (resolve, reject) {
-    //         console.log("Promise");
-    //         request.post(options, function (err, resp, body) {
-    //             if (err) {
-    //                 console.log("Fail")
-    //                 reject(err);
-    //             } else {
-    //                 console.log("Success");
-    //                 setTimeout(() => resolve(body), 2000);
-    //             }
-    //         })
-    //     })
-    //     return promise;
-    // }
 
     insertArticleQueries(article) {
         //let prefix = 'dgc:';
@@ -173,17 +123,6 @@ module.exports = class DBManager {
         }
 
         return triple;
-    }
-
-    insertTextOfArticle(prefix, article) {
-        let triple = '';
-        let subject = prefix + article.externalId;
-        let predicate = prefix + 'hasText';
-        let object = striphtml(article.text);
-        triple = subject + ' ' + predicate + ' \"' + object + "\"."
-        console.log(triple);
-        let insert = this.callInsertFunctionWithTimeout(triple);
-        return article.text;
     }
 
     extractLemma(array) {
