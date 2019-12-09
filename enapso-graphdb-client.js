@@ -12,7 +12,7 @@ const
     GRAPHDB_REPOSITORY = 'dgc',
     GRAPHDB_USERNAME = 'oliverZ',
     GRAPHDB_PASSWORD = 'oliverZ',
-    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc'
+    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc2'
     ;
 
 // the default prefixes for all SPARQL queries
@@ -58,6 +58,44 @@ where {
         return query;
     },
     /*******************************************************************************************************/
+    insertLocations: async function (locations) {
+        let triples = ""
+        locations.forEach(element => {
+            let value = element.replace(/XXX/, "'")
+            let triple_type = "dgc:" + element + " rdf:Type dgc:Location. \n" 
+            let triple_value = "dgc:" + element + " dgc:hasValue \"" + value +"\". \n"
+            triples = triples + triple_type + triple_value;
+        });
+        //fs.writeFileSync("help.txt", triples);
+        let query = `
+        insert data {
+            graph <${GRAPHDB_CONTEXT_TEST}> {` +
+            triples + `\n } }`
+        let resp = await this.graphDBEndpoint.update(query);
+        console.log(triples + " " +
+            (resp.success ? 'succeeded' : 'failed') +
+            ':\n' + JSON.stringify(resp, null, 2));
+    },
+
+    insertPersons: async function (persons) {
+        let triples = ""
+        persons.forEach(element => {
+            //let value = element.replace(/XXX/, "'")
+            let triple_type = "dgc:" + element + " rdf:Type dgc:Location. \n" 
+            let triple_value = "dgc:" + element + " dgc:hasValue \"" + element +"\". \n"
+            triples = triples + triple_type + triple_value;
+        });
+        fs.writeFileSync("persons.txt", triples);
+        let query = `
+        insert data {
+            graph <${GRAPHDB_CONTEXT_TEST}> {` +
+            triples + `\n } }`
+        let resp = await this.graphDBEndpoint.update(query);
+        // console.log(triples + " " +
+        //     (resp.success ? 'succeeded' : 'failed') +
+        //     ':\n' + JSON.stringify(resp, null, 2));
+    },
+
     demoInsert: async function (triple) {
         let query = `
         insert data {

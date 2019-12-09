@@ -9,25 +9,27 @@ module.exports = class DBManager {
 
     }
 
-    insertArticleQueries(article) {
-        //let prefix = 'dgc:';
-        this.insertTypeOfArticle(prefix, article);
-        let id = this.insertArticleWithId(prefix, article);
-        let text = this.insertTextOfArticle(prefix, article);
-        let author = this.insertArticleWithAuthor(prefix, article);
-        let category = this.insertArticleWithCategory(prefix, article);
-        //let persons = this.insertArticleWithPersons(prefix, article);
-        //let locations = this.insertArticleWithLocations(prefix, article);
-        let articleObj = {
-            id: id,
-            author: author,
-            category: category,
-            persons: persons,
-            locations: locations,
-            text: text,
-        }
-        //cenAlg.getAllNodesFromDB();
-        return articleObj;
+    insertArticleQueries(persons, locations) {
+        //egc.insertLocations(locations);
+        egc.insertPersons(persons)
+        // //let prefix = 'dgc:';
+        // this.insertTypeOfArticle(prefix, article);
+        // let id = this.insertArticleWithId(prefix, article);
+        // let text = this.insertTextOfArticle(prefix, article);
+        // let author = this.insertArticleWithAuthor(prefix, article);
+        // let category = this.insertArticleWithCategory(prefix, article);
+        // //let persons = this.insertArticleWithPersons(prefix, article);
+        // //let locations = this.insertArticleWithLocations(prefix, article);
+        // let articleObj = {
+        //     id: id,
+        //     author: author,
+        //     category: category,
+        //     persons: persons,
+        //     locations: locations,
+        //     text: text,
+        // }
+        // //cenAlg.getAllNodesFromDB();
+        // return articleObj;
     }
 
     insertTypeOfArticle(prefix, article) {
@@ -296,12 +298,6 @@ module.exports = class DBManager {
 
         })
         return (promise);
-    }
-
-    callInsertFunctionWithTimeout(triple) {
-        setTimeout(function () {
-            egc.demoInsert(triple)
-        }, 1000)
     }
 
 }

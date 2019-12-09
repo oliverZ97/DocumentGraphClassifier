@@ -2,36 +2,68 @@ var fs = require('fs');
 var fetch = require("node-fetch");
 var dbManager = require('./dbManager');
 let dbm = new dbManager();
-
-/*var methods = {
-    
-    parseJSONFile: function(file) {
-        let filestring = fs.readFile(file);
-        let fileobj = JSON.parse(filestring);
-        console.log(fileobj);
-    }
-} 
-
-exports.data = methods;
-*/
-
-//How to pass the files from index.html to this Method?
-
+var documents = [];
+var locations = [];
+var persons = [];
 
 function parseJSONFile() {
-    let filestring = fs.readFileSync("./data/wirtschaft.json");
-    let fileobj = JSON.parse(filestring);
-    extractDocuments(fileobj);
+    let filedir = fs.readdirSync("./data");
+    filedir.forEach((file) => {
+        let filestring = fs.readFileSync("./data/" + file);
+        let fileobj = JSON.parse(filestring);
+        let docs = extractDocuments(fileobj);
+        docs.forEach((elem) => {
+            documents.push(elem);
+        })
+    })
+    console.log(documents.length);
+    extractLocations();
+    extractPersons();
+    dbm.insertArticleQueries(persons, locations);
 }
 
 function extractDocuments(jsonobj) {
-    let documents = jsonobj.documents;
-    let element = documents[1];
-    callPost(element);
-    // documents.forEach(element => {
-    //     setTimeout(callPost(element), 2000);
-    // });
+    let docs = jsonobj.documents;
+    return docs;
+}
 
+function extractLocations() {
+    let help_array = [];
+    let bugs = [];
+    documents.forEach((art) => {
+        let geos = art.linguistics.geos;
+        geos.forEach((elem) => {
+            if(elem.lemma.match(/[\'|\+|\’|\,|\(\)|\/]/g)){
+                let lemma_space = elem.lemma.replace(/ /g, "_");
+                bugs.push(lemma_space);
+            } else {
+                let lemma_space = elem.lemma.replace(/ /g, "_");
+                help_array.push(lemma_space);
+            }
+        })
+    })
+    let unique = [...new Set(help_array)];
+    console.log("BUGS: ", bugs)
+    locations = unique;
+}
+
+function extractPersons() {
+    let help_array = [];
+    let bugs = [];
+    documents.forEach((art) => {
+        let pers = art.linguistics.persons;
+        pers.forEach((elem) => {
+            if(elem.lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"|\&quot]/g)){
+                let lemma_space = elem.lemma.replace(/ /g, "_");
+                bugs.push(lemma_space);
+            } else {
+                let lemma_space = elem.lemma.replace(/ /g, "_");
+                help_array.push(lemma_space);
+            }
+        })
+    })
+    let unique = [...new Set(help_array)];
+    persons = unique;
 }
 
 function callPost(article) {
