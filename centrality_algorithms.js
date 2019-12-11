@@ -51,10 +51,10 @@ function computeCentralityAlgorithms(nodeSets) {
     var outDegreeCentrality = centrality.degree(g, 'out')
     var betweenessCentrality = centrality.betweenness(g, true);
 
-    dbm.insertDegreeCentrality(degreeCentrality);
-    dbm.insertInDegreeCentrality(inDegreeCentrality);
-    dbm.insertOutDegreeCentrality(outDegreeCentrality);
-    dbm.insertBetweenessCentrality(betweenessCentrality);
+    dbm.insertCentrality(degreeCentrality, "nodeDegree");
+    dbm.insertCentrality(inDegreeCentrality, "inDegree");
+    dbm.insertCentrality(outDegreeCentrality, "outDegree");
+    dbm.insertCentrality(betweenessCentrality, "betweenessCentrality");
 }
 
 function removeUri(string) {

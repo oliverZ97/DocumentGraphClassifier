@@ -3,137 +3,76 @@ const fs = require("fs");
 const egc = require('./enapso-graphdb-client');
 //const cenAlg = require("./centrality_algorithms");
 const prefix = 'dgc:'
+var bugs = [];
 
 module.exports = class DBManager {
     constructor() {
 
     }
 
-    insertArticleQueries(persons, locations) {
-        //egc.insertLocations(locations);
+    insertArticleQueries(persons, locations, articles) {
+        egc.insertLocations(locations);
         egc.insertPersons(persons)
-        // //let prefix = 'dgc:';
-        // this.insertTypeOfArticle(prefix, article);
-        // let id = this.insertArticleWithId(prefix, article);
-        // let text = this.insertTextOfArticle(prefix, article);
-        // let author = this.insertArticleWithAuthor(prefix, article);
-        // let category = this.insertArticleWithCategory(prefix, article);
-        // //let persons = this.insertArticleWithPersons(prefix, article);
-        // //let locations = this.insertArticleWithLocations(prefix, article);
-        // let articleObj = {
-        //     id: id,
-        //     author: author,
-        //     category: category,
-        //     persons: persons,
-        //     locations: locations,
-        //     text: text,
-        // }
-        // //cenAlg.getAllNodesFromDB();
-        // return articleObj;
+        articles.forEach((elem) => {
+            let triples = this.createArticleTriples(elem);
+            egc.demoInsert(triples);
+        })
+        console.log(bugs);
     }
 
-    insertTypeOfArticle(prefix, article) {
-        let triple = '';
-        let subject = prefix + article.externalId;
-        let predicate = 'rdf:Type';
-        let object = prefix + 'Article';
-        triple = subject + ' ' + predicate + ' ' + object + "."
-        let insert = egc.demoInsert(triple);
-    }
-
-    insertArticleWithId(prefix, article) {
-        let triple = '';
-        let subject = prefix + article.externalId;
-        let predicate = prefix + 'hasId';
-        let object = article.externalId;
-        triple = subject + ' ' + predicate + ' ' + object + "."
-        let insert = egc.demoInsert(triple);
-        return article.externalId;
-    }
-
-    insertArticleWithAuthor(prefix, article) {
-        //console.log(article);
-        let triple = '';
-        let subject = prefix + article.externalId;
-        let predicate = prefix + 'hasAuthor';
-        let string = article.authors[0].replace(/ /g, '_') || '';
-        let object = string;    //only the first author ist used!
-        triple = subject + ' ' + predicate + ' \"' + object + "\"."
-        let insert = egc.demoInsert(triple);
-        return article.authors[0];
-    }
-
-    insertArticleWithCategory(prefix, article) {
-        let triple = '';
-        let subject = prefix + article.externalId;
-        let predicate = prefix + 'hasCategory';
-        let object = article.category;
-        triple = subject + ' ' + predicate + ' \"' + object + "\"."
-        let insert = egc.demoInsert(triple);
-        return article.category;
-    }
-
-    insertArticleWithPersons(prefix, article) {
-        let persons = this.extractLemma(article.linguistics.persons)
-        for (let i = 0; i < persons.length; i++) {
-            let subject = prefix + article.externalId;
-            let predicate = prefix + 'mentions';
-            let object = prefix + persons[i];
-            let triple = subject + ' ' + predicate + ' ' + object + "."
-            let insert = egc.demoInsert(triple);
+    createArticleTriples(article) {
+        let triples = ""
+        let tri_type = prefix + article.id + " rdf:Type " + prefix + "Article . \n";
+        let tri_id = prefix + article.id + " " + prefix + "hasId \"" + article.id + "\".\n";
+        let tri_realCat = prefix + article.id + " " + prefix + "hasRealCategory \"" + article.realCategory + "\".\n";
+        let tri_title = prefix + article.id + " " + prefix + "hasTitle \"" + article.title + "\".\n";
+        let tri_lang = prefix + article.id + " " + prefix + "hasLanguage \"" + article.language + "\".\n";
+        triples = tri_type + tri_id + tri_realCat + tri_title + tri_lang;
+        if (article.authors !== undefined) {
+            article.authors.forEach((elem) => {
+                let tri_author = prefix + article.id + " " + prefix + "hasAuthor \"" + elem + "\". \n";
+                triples = triples + tri_author;
+            })
         }
-        this.insertTypeOfEntity(prefix, persons, "Person")
-        this.insertLiteralValueForEntity(prefix, persons)
-        return persons;
-    }
-
-    insertArticleWithLocations(prefix, article) {
-        let locations = this.extractLemma(article.linguistics.geos)
-        for (let i = 0; i < locations.length; i++) {
-            let subject = prefix + article.externalId;
-            let predicate = prefix + 'mentions';
-            let object = prefix + locations[i];
-            let triple = subject + ' ' + predicate + ' ' + object + ".";
-            let insert = egc.demoInsert(triple);
+        if (article.locations !== undefined) {
+            article.locations.forEach((geo) => {
+                let lemma = geo.lemma;
+                if (lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
+                    let bug = {
+                        id: article.id,
+                        lemma: lemma,
+                        type: "location"
+                    };
+                    bugs.push(bug);
+                } else {
+                    let cleanGeo = lemma.replace(/ /g, "_");
+                    let tri_geo = prefix + article.id + " " + prefix + "mentions " + prefix + cleanGeo + ". \n";
+                    let tri_geo_value = prefix + cleanGeo + " " + prefix + "hasValue \"" + lemma + "\". \n";
+                    let tri_geo_type = prefix + cleanGeo + " rdf:Type " + prefix + "Location. \n";
+                    triples = triples + tri_geo + tri_geo_value + tri_geo_type;
+                }
+            })
         }
-        this.insertTypeOfEntity(prefix, locations, "Location")
-        this.insertLiteralValueForEntity(prefix, locations)
-        return locations;
-    }
-
-    insertLiteralValueForEntity(prefix, array) {
-        let triple = '';
-        for (let i = 0; i < array.length; i++) {
-            let subject = prefix + array[i];
-            let predicate = prefix + 'hasValue';
-            let object = array[i];
-            triple = subject + ' ' + predicate + ' \"' + object + "\"."
-            let insert = egc.demoInsert(triple);
+        if (article.persons !== undefined) {
+            article.persons.forEach((pers) => {
+                let lemma = pers.lemma;
+                if (lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
+                    let bug = {
+                        id: article.id,
+                        lemma: lemma,
+                        type: "person"
+                    };
+                    bugs.push(bug);
+                } else {
+                    let cleanPers = lemma.replace(/ /g, "_");
+                    let tri_pers = prefix + article.id + " " + prefix + "mentions " + prefix + cleanPers + ". \n";
+                    let tri_pers_value = prefix + cleanPers + " " + prefix + "hasValue \"" + lemma + "\". \n";
+                    let tri_pers_type = prefix + cleanPers + " rdf:Type " + prefix + "Person. \n";
+                    triples = triples + tri_pers + tri_pers_value + tri_pers_type;
+                }
+            })
         }
-
-        return triple;
-    }
-
-    insertTypeOfEntity(prefix, array, type) {
-        let triple = '';
-        for (let i = 0; i < array.length; i++) {
-            let subject = prefix + array[i];
-            let predicate = "rdf:Type";
-            let object = prefix + type;
-            triple = subject + ' ' + predicate + ' ' + object + "."
-            let insert = this.callInsertFunctionWithTimeout(triple);
-        }
-
-        return triple;
-    }
-
-    extractLemma(array) {
-        let entities = [];
-        array.forEach(element => {
-            let entity = element.lemma.replace(/ /g, '_')
-            entities.push(entity)
-        });
-        return entities;
+        return triples;
     }
 
     getUnclassifiedArticles(nr) {
@@ -178,74 +117,35 @@ module.exports = class DBManager {
         return (promise);
     }
 
-    insertDegreeCentrality(degreeCentrality) {
-        let object = JSON.parse(JSON.stringify(degreeCentrality));
+    insertCentrality(centrality, centralityType) {
+        let object = JSON.parse(JSON.stringify(centrality));
         let keys = Object.keys(object)
         let values = Object.values(object);
-        //console.log(keys);
+        let triples = "";
+        let deleteTriples = ""
         for (let i = 0; i < keys.length; i++) {
-            setTimeout(function () {
+            let uri = keys[i].replace("uri-", prefix);
+            let triple_new = '';
+            let subject = uri;
+            let predicate = prefix + centralityType;
+            let object = values[i];
+            triple_new = subject + ' ' + predicate + ' \"' + object + "\".\n"
 
-                let uri = keys[i].replace("uri-", prefix);
-                let triple_new = '';
-                let subject = uri;
-                let predicate = prefix + 'nodeDegree';
-                let object = values[i];
-                triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
-
-                console.log(triple_new);
-
-                let deleteOld = egc.deleteWhere(subject, predicate);
-                let insert = egc.demoInsert(triple_new);
-            }, 1000)
+            let tri_del = subject + ' ' + predicate + '?o.\n';
+            deleteTriples = deleteTriples + tri_del;
+            triples = triples + triple_new;
+            if (i % 2000 === 0) {
+                let deleteOld = egc.deleteTriples(deleteTriples);
+                let insert = egc.demoInsert(triples);
+                triples = "";
+                deleteTriples = ""
+            }
         }
+        let deleteOld = egc.deleteTriples(deleteTriples);
+        let insert = egc.demoInsert(triples);
     }
 
-    insertInDegreeCentrality(inDegreeCentrality) {
-        let object = JSON.parse(JSON.stringify(inDegreeCentrality));
-        let keys = Object.keys(object)
-        let values = Object.values(object);
-        //console.log(keys);
-        for (let i = 0; i < keys.length; i++) {
-            setTimeout(function () {
 
-                let uri = keys[i].replace("uri-", prefix);
-                let triple_new = '';
-                let subject = uri;
-                let predicate = prefix + 'inDegree';
-                let object = values[i];
-                triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
-
-                console.log(triple_new);
-
-                let deleteOld = egc.deleteWhere(subject, predicate);
-                let insert = egc.demoInsert(triple_new);
-            }, 1000)
-        }
-    }
-
-    insertOutDegreeCentrality(outDegreeCentrality) {
-        let object = JSON.parse(JSON.stringify(outDegreeCentrality));
-        let keys = Object.keys(object)
-        let values = Object.values(object);
-        //console.log(keys);
-        for (let i = 0; i < keys.length; i++) {
-            setTimeout(function () {
-
-                let uri = keys[i].replace("uri-", prefix);
-                let triple_new = '';
-                let subject = uri;
-                let predicate = prefix + 'outDegree';
-                let object = values[i];
-                triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
-
-                console.log(triple_new);
-
-                let deleteOld = egc.deleteWhere(subject, predicate);
-                let insert = egc.demoInsert(triple_new);
-            }, 1000)
-        }
-    }
 
     insertBetweenessCentrality(betweenessCentrality) {
         let object = JSON.parse(JSON.stringify(betweenessCentrality));

@@ -5,6 +5,7 @@
 // require the Enapso GraphDB Client package
 const { EnapsoGraphDBClient } = require("enapso-graphdb-client");
 const fs = require("fs");
+var fails = [];
 
 // connection data to the running GraphDB instance
 const
@@ -12,7 +13,7 @@ const
     GRAPHDB_REPOSITORY = 'dgc',
     GRAPHDB_USERNAME = 'oliverZ',
     GRAPHDB_PASSWORD = 'oliverZ',
-    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc2'
+    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc'
     ;
 
 // the default prefixes for all SPARQL queries
@@ -105,6 +106,9 @@ where {
         console.log(triple + " " +
             (resp.success ? 'succeeded' : 'failed') +
             ':\n' + JSON.stringify(resp, null, 2));
+            if(!resp.success) {
+                fails.push(query);
+            }
     },
     /******************************************************************************************************/
     demoUpdate: async function () {
@@ -158,13 +162,10 @@ where {
             ':\n' + JSON.stringify(resp, null, 2));
     },
 
-    deleteWhere: async function (subject, predicate) {
+    deleteTriples: async function (triples) {
         let resp = await this.graphDBEndpoint.update(`
-with <${GRAPHDB_CONTEXT_TEST}>
-delete 
-{`+ subject + ` ` + predicate + ` ?o }
-where 
-{`+ subject + ` ` + predicate + ` ?o }`
+delete data from <${GRAPHDB_CONTEXT_TEST}>
+{`+ triples + `}`
         );
         console.log(subject);
         console.log('Delete ' +
@@ -289,7 +290,7 @@ select ?s ?o
 	from <${GRAPHDB_CONTEXT_TEST}>
 where {
 	?s ?p ?o
-}limit 10`
+}`
         );
         if (query.success) {
             resp = await this.graphDBEndpoint.transformBindingsToResultSet(query);

@@ -5,6 +5,7 @@ let dbm = new dbManager();
 var documents = [];
 var locations = [];
 var persons = [];
+var articles = [];
 
 function parseJSONFile() {
     let filedir = fs.readdirSync("./data");
@@ -19,7 +20,25 @@ function parseJSONFile() {
     console.log(documents.length);
     extractLocations();
     extractPersons();
-    dbm.insertArticleQueries(persons, locations);
+    setArticles();
+    dbm.insertArticleQueries(persons, locations, articles);
+}
+
+function setArticles() {
+    documents.forEach((elem) => {
+        let object = {
+            id: elem.externalId,
+            authors: elem.authors,
+            realCategory: elem.category,
+            locations: elem.linguistics.geos,
+            persons: elem.linguistics.persons,
+            language: elem.language,
+            title: elem.title,
+            publisher: elem.publisher
+        }
+        articles.push(object);
+    })
+    console.log(articles.length);
 }
 
 function extractDocuments(jsonobj) {
@@ -43,8 +62,22 @@ function extractLocations() {
         })
     })
     let unique = [...new Set(help_array)];
-    console.log("BUGS: ", bugs)
+    console.log(bugs)
+    //escapeSpecialChars(bugs);
     locations = unique;
+}
+
+function escapeSpecialChars(bugs){
+    for(let i = 0; i < bugs.length; i++){
+        let index = bugs[i].search(/[\'|\+|\’|\,|\(\)|\/]/);
+        console.log(bugs[i], index);
+        let start = bugs[i].slice(0, index-1);
+        let end = bugs[i].slice(index-1, -1);
+        let newString = start + "\\" + end;
+        console.log(newString);
+        bugs[i] = newString
+    }
+    //console.log(bugs)
 }
 
 function extractPersons() {

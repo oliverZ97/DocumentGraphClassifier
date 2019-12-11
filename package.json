@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "node httpManager.js",
-    "postserver": "simplehttpserver"
+    "postserver": "simplehttpserver",
+    "import": "node dataImport.js",
+    "postimport": "node centrality_algorithms.js"
   },
   "repository": {
     "type": "git",
