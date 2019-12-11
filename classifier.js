@@ -2,8 +2,9 @@ const cosine = require("calculate-cosine-similarity");
 var dbManager = require('./dbManager');
 let dbm = new dbManager();
 
-let data1 = ["Berlin"];
+let data1 = ["Donald_Trump", "Angela_Merkel", "USA"];
 let data2 = ["bye", "trump", "usa", "chellow"];
+let sim_results = [];
 //console.log(cosine(data1, data2));
 
 function getEntitiesOfArticleWithEntity() {
@@ -15,13 +16,15 @@ function getEntitiesOfArticleWithEntity() {
             let allarticles = []
             let help = [];
             statements.forEach((elem) => {
-                help.push(elem.s.value);
+                let cleanS = elem.s.value.replace("http://example.org/dgc#", "");
+                help.push(cleanS);
             })
             let ids = [...new Set(help)]
             ids.forEach((id) => {
                 let properties = [];
                 statements.forEach((elem) => {
-                    if(id.match(elem.s.value)){
+                    let cleanS = elem.s.value.replace("http://example.org/dgc#", "");
+                    if(id.match(cleanS)){
                         properties.push(elem);
                     }
                 })
@@ -31,7 +34,8 @@ function getEntitiesOfArticleWithEntity() {
                 let cat = "";
                 properties.forEach((prop) => {
                     if(prop.p.value.match(/mentions/)){
-                        entities.push(prop.o.value);
+                        let cleanO = prop.o.value.split("#")[1];
+                        entities.push(cleanO);
                     }
                     if(prop.p.value.match(/hasId/)){
                         art_id = prop.o.value;
@@ -45,9 +49,33 @@ function getEntitiesOfArticleWithEntity() {
                 article.entities = entities
                 allarticles.push(article)
             })
-            splitArticlesToCategory(allarticles)
+            let resultOfRound = splitArticlesToCategory(allarticles)
+            sim_results.push(resultOfRound);
+            if(sim_results.length === data1.length) {
+                computeFinalAvgSim();
+            }
         })  
     })
+}
+
+function computeFinalAvgSim() {
+    let index = 0;
+    let sum_p = 0;
+    let sum_e = 0;
+    let sum_c = 0;
+    let sum_s = 0;
+    sim_results.forEach((set) => {
+        sum_p += set.politic;
+        sum_e += set.economy;
+        sum_c += set.culture;
+        sum_s += set.sport;
+        index++;
+    })
+    let avg_sim_p = sum_p/index;
+    let avg_sim_e = sum_e/index;
+    let avg_sim_c = sum_c/index;
+    let avg_sim_s = sum_s/index;
+    console.log("P: " + avg_sim_p + " E: " + avg_sim_e + " C: " + avg_sim_c + " S: "+ avg_sim_s);
 }
 
 function splitArticlesToCategory(articles){
@@ -71,10 +99,38 @@ function splitArticlesToCategory(articles){
                 break;
         }
     })
-    console.log("Politik ",politic.length );
-    console.log("Wirtschaft ", economy.length);
-    console.log("Kultur ", culture.length);
-    console.log("Sport ", sport.length);
+    let sim_p = cosinePreparation(politic);
+    let sim_e = cosinePreparation(economy);
+    let sim_c = cosinePreparation(culture);
+    let sim_s = cosinePreparation(sport);
+    let result = {
+        politic: sim_p,
+        economy: sim_e,
+        culture: sim_c,
+        sport: sim_s
+    }
+    return result;
+}
+
+function computeCosineSimilarity(article) {
+    let similarity = cosine(data1, article.entities);
+    if(similarity === NaN){
+        similarity = 0;
+    }
+    return similarity;
+}   
+
+function cosinePreparation(array) {
+    let sum = 0;
+    let index = 0;
+    let averageCosineSimilarity = 0;
+    array.forEach((art) => {
+        let similarity = computeCosineSimilarity(art);
+        sum += similarity
+        index ++;
+    })
+    averageCosineSimilarity = sum/index;
+    return averageCosineSimilarity;
 }
 
 getEntitiesOfArticleWithEntity();
