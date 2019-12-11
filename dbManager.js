@@ -117,6 +117,21 @@ module.exports = class DBManager {
         return (promise);
     }
 
+    getEntitiesOfArticleWithEntity(entity) {
+        let promise = new Promise(function (resolve, reject) {
+            let nodes = egc.getEntitiesOfArticĺeWithEntity(entity);
+            nodes.then(function (result) {
+
+                return resolve(result);
+            })
+                .catch(function (err) {
+                    console.log(err);
+                })
+
+        })
+        return (promise);
+    }
+
     insertCentrality(centrality, centralityType) {
         let object = JSON.parse(JSON.stringify(centrality));
         let keys = Object.keys(object)
@@ -143,31 +158,6 @@ module.exports = class DBManager {
         }
         let deleteOld = egc.deleteTriples(deleteTriples);
         let insert = egc.demoInsert(triples);
-    }
-
-
-
-    insertBetweenessCentrality(betweenessCentrality) {
-        let object = JSON.parse(JSON.stringify(betweenessCentrality));
-        let keys = Object.keys(object)
-        let values = Object.values(object);
-        //console.log(keys);
-        for (let i = 0; i < keys.length; i++) {
-            setTimeout(function () {
-
-                let uri = keys[i].replace("uri-", prefix);
-                let triple_new = '';
-                let subject = uri;
-                let predicate = prefix + 'betweenessCentrality';
-                let object = values[i];
-                triple_new = subject + ' ' + predicate + ' \"' + object + "\"."
-
-                console.log(triple_new);
-
-                let deleteOld = egc.deleteWhere(subject, predicate);
-                let insert = egc.demoInsert(triple_new);
-            }, 1000)
-        }
     }
 
     getSumOfArticlesInCategoryWithEntity(entity) {
