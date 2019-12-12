@@ -43,7 +43,7 @@ where {
         );
         if (query.success) {
             let resp = await this.graphDBEndpoint.transformBindingsToResultSet(query);
-            console.log("Query succeeded:\n" + JSON.stringify(resp, null, 2));
+            //console.log("Query succeeded:\n" + JSON.stringify(resp, null, 2));
         } else {
             let lMsg = query.message;
             if (400 === query.statusCode) {
@@ -370,7 +370,9 @@ where {`
 select *
 	from <${GRAPHDB_CONTEXT_TEST}>
 where { ?s dgc:mentions dgc:` + entity + `.
-?s ?p ?o
+?s ?p ?o.
+dgc:` + entity + ` dgc:inDegree ?inDegree.
+dgc:` + entity + ` dgc:betweenessCentrality ?betweeness.
 }`
         );
         if (query.success) {
@@ -466,11 +468,11 @@ where {
             // + ':\n' + JSON.stringify(this.authentication, null, 2)
         );
 
-        console.log('The initial repository should be empty:')
+        //console.log('The initial repository should be empty:')
         await this.demoQuery();
         //await this.demoInsert(triple);
 
-        console.log('The query should return one row with the new TestClass:')
+        //console.log('The query should return one row with the new TestClass:')
         var res = await this.demoQuery();
         // if query successful, write csv to file
         /*if (res.success) {
