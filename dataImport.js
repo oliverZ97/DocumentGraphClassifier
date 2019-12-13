@@ -1,5 +1,4 @@
 var fs = require('fs');
-var fetch = require("node-fetch");
 var dbManager = require('./dbManager');
 let dbm = new dbManager();
 var documents = [];
@@ -17,7 +16,7 @@ function parseJSONFile() {
             documents.push(elem);
         })
     })
-    console.log(documents.length);
+    console.log(documents[0].linguistics.geos);
     extractLocations();
     extractPersons();
     setArticles();
@@ -67,19 +66,6 @@ function extractLocations() {
     locations = unique;
 }
 
-function escapeSpecialChars(bugs){
-    for(let i = 0; i < bugs.length; i++){
-        let index = bugs[i].search(/[\'|\+|\’|\,|\(\)|\/]/);
-        console.log(bugs[i], index);
-        let start = bugs[i].slice(0, index-1);
-        let end = bugs[i].slice(index-1, -1);
-        let newString = start + "\\" + end;
-        console.log(newString);
-        bugs[i] = newString
-    }
-    //console.log(bugs)
-}
-
 function extractPersons() {
     let help_array = [];
     let bugs = [];
@@ -99,35 +85,17 @@ function extractPersons() {
     persons = unique;
 }
 
-function callPost(article) {
-    var params = article;
-    //console.log("PARAMS: ", params);Loading...
-
-    let url = "http://localhost:3300/dgc"
-    fetch(url, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(params)
-    })
-    return function() {
-        if(err) {
-            console.log ("err")
-        }
+function escapeSpecialChars(bugs){
+    for(let i = 0; i < bugs.length; i++){
+        let index = bugs[i].search(/[\'|\+|\’|\,|\(\)|\/]/);
+        console.log(bugs[i], index);
+        let start = bugs[i].slice(0, index-1);
+        let end = bugs[i].slice(index-1, -1);
+        let newString = start + "\\" + end;
+        console.log(newString);
+        bugs[i] = newString
     }
-    //.then(res => res.json())
-    //.then(json => console.log(json))
-}
-
-function callGet() {
-    let url = "http://localhost:3300/dgc/data"
-    fetch(url, {
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    //console.log(bugs)
 }
 
 parseJSONFile()
