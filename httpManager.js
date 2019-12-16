@@ -48,16 +48,6 @@ app.get('/dgc', (req, res) => {
         }).catch(function (err) {
             console.log(err);
         })
-    } else if(req.query.entity !== undefined) {
-        let entity = req.query.entity;
-        console.log("entity: " ,entity);
-        let promise = dbm.getSumOfArticlesInCategoryWithEntity(entity);
-        promise.then(function (result) {
-            //console.log("RESULT: ", result.results.bindings);
-            res.send(result.results.bindings);
-        }).catch(function (err) {
-            console.log(err);
-        })
     } else if(req.query.body !== undefined){
         let entities = req.query.body;
         console.log("entity: " ,entities);
@@ -74,10 +64,13 @@ app.get('/dgc', (req, res) => {
 
 
 app.post('/dgc', (req, res) => {
-    let article = req.body;
-    let promise = dbm.insertArticleQueries(article);
-    console.log("PROMISE: ", promise);
-    return res.send(promise)
+        console.log("REQ:", req)
+//     let article = req.body;
+//     let promise = dbm.insertArticleQueries(article);
+//     console.log("PROMISE: ", promise);
+//     return res.send(promise)
+        let entities = req.body;
+        console.log(entities);
 });
 
 app.listen(3300, () =>

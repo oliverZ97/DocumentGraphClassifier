@@ -42,5 +42,6 @@
     "string-strip-html": "^4.3.9",
     "whatwg-fetch": "^3.0.0",
     "xmlhttprequest": "^1.8.0"
-  }
+  },
+  "devDependencies": {}
 }
