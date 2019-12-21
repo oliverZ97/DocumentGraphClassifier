@@ -16,6 +16,7 @@ function parseJSONFile() {
             documents.push(elem);
         })
     })
+    //console.log(documents[0].linguistics.geos);
     extractLocations();
     extractPersons();
     setArticles();
@@ -46,26 +47,58 @@ function extractDocuments(jsonobj) {
 
 function extractLocations() {
     let help_array = [];
+    let bugs = [];
     documents.forEach((art) => {
         let geos = art.linguistics.geos;
         geos.forEach((elem) => {
             help_array.push(elem);
+            // if(elem.lemma.match(/[\'|\+|\’|\,|\(\)|\/]/g)){
+                // let lemma_space = elem.lemma.replace(/ /g, "_");
+                // bugs.push(lemma_space);
+            // } else {
+                //let lemma_space = elem.lemma.replace(/ /g, "_");
+                
+            // }
         })
     })
     let unique = [...new Set(help_array)];
+    fs.writeFileSync("geos.txt", unique)
+    console.log(bugs)
+    //escapeSpecialChars(bugs);
     locations = unique;
 }
 
 function extractPersons() {
     let help_array = [];
+    let bugs = [];
     documents.forEach((art) => {
         let pers = art.linguistics.persons;
         pers.forEach((elem) => {
             help_array.push(elem);
+            // if(elem.lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"|\&quot]/g)){
+            //     let lemma_space = elem.lemma.replace(/ /g, "_");
+            //     bugs.push(lemma_space);
+            // } else {
+            //     let lemma_space = elem.lemma.replace(/ /g, "_");
+                
+            // }
         })
     })
     let unique = [...new Set(help_array)];
     persons = unique;
+}
+
+function escapeSpecialChars(bugs){
+    for(let i = 0; i < bugs.length; i++){
+        let index = bugs[i].search(/[\'|\+|\’|\,|\(\)|\/]/);
+        console.log(bugs[i], index);
+        let start = bugs[i].slice(0, index-1);
+        let end = bugs[i].slice(index-1, -1);
+        let newString = start + "\\" + end;
+        console.log(newString);
+        bugs[i] = newString
+    }
+    //console.log(bugs)
 }
 
 parseJSONFile()
