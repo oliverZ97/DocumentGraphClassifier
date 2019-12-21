@@ -62,9 +62,11 @@ where {
     insertLocations: async function (locations) {
         let triples = ""
         locations.forEach(element => {
-            let value = element.replace(/XXX/, "'")
-            let triple_type = "dgc:" + element + " rdf:Type dgc:Location. \n" 
-            let triple_value = "dgc:" + element + " dgc:hasValue \"" + value +"\". \n"
+            console.log("ELEM ", element);
+            let iriString = element.lemma.replace(/[\'|\+|\’|\,|\(\)|\/]/g, "-").replace(/ /g, "_");
+            let value = element.lemma;
+            let triple_type = "dgc:" + iriString + " rdf:Type dgc:Location. \n"
+            let triple_value = "dgc:" + iriString + " dgc:hasValue \"" + value + "\". \n"
             triples = triples + triple_type + triple_value;
         });
         //fs.writeFileSync("help.txt", triples);
@@ -81,9 +83,10 @@ where {
     insertPersons: async function (persons) {
         let triples = ""
         persons.forEach(element => {
-            //let value = element.replace(/XXX/, "'")
-            let triple_type = "dgc:" + element + " rdf:Type dgc:Location. \n" 
-            let triple_value = "dgc:" + element + " dgc:hasValue \"" + element +"\". \n"
+            let iriString = element.lemma.replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-").replace(/ /g, "_");
+            let value = element.lemma;
+            let triple_type = "dgc:" + iriString + " rdf:Type dgc:Location. \n"
+            let triple_value = "dgc:" + iriString + " dgc:hasValue \"" + element + "\". \n"
             triples = triples + triple_type + triple_value;
         });
         fs.writeFileSync("persons.txt", triples);
@@ -106,9 +109,25 @@ where {
         console.log(triple + " " +
             (resp.success ? 'succeeded' : 'failed') +
             ':\n' + JSON.stringify(resp, null, 2));
-            if(!resp.success) {
-                fails.push(query);
-            }
+        if (!resp.success) {
+            fails.push(query);
+        }
+    },
+
+    insertClasses: async function () {
+        let triples = ""
+        let triple_article = "dgc:Article rdf:Type rdf:class. \n"
+        let triple_location = "dgc:Location rdf:Type rdf:class. \n"
+        let triple_person = "dgc:Person rdf:Type rdf:class.\n"
+        triples = triple_article + triple_location + triple_person;
+        let query = `
+        insert data {
+            graph <${GRAPHDB_CONTEXT_TEST}> {` +
+            triples + `\n } }`
+        let resp = await this.graphDBEndpoint.update(query);
+        console.log(triples + " " +
+            (resp.success ? 'succeeded' : 'failed') +
+            ':\n' + JSON.stringify(resp, null, 2));
     },
     /******************************************************************************************************/
     demoUpdate: async function () {

@@ -16,7 +16,7 @@ function parseJSONFile() {
             documents.push(elem);
         })
     })
-    console.log(documents[0].linguistics.geos);
+    //console.log(documents[0].linguistics.geos);
     extractLocations();
     extractPersons();
     setArticles();
@@ -51,16 +51,18 @@ function extractLocations() {
     documents.forEach((art) => {
         let geos = art.linguistics.geos;
         geos.forEach((elem) => {
+            help_array.push(elem);
             // if(elem.lemma.match(/[\'|\+|\’|\,|\(\)|\/]/g)){
                 // let lemma_space = elem.lemma.replace(/ /g, "_");
                 // bugs.push(lemma_space);
             // } else {
-                let lemma_space = elem.lemma.replace(/ /g, "_");
-                help_array.push(lemma_space);
+                //let lemma_space = elem.lemma.replace(/ /g, "_");
+                
             // }
         })
     })
     let unique = [...new Set(help_array)];
+    fs.writeFileSync("geos.txt", unique)
     console.log(bugs)
     //escapeSpecialChars(bugs);
     locations = unique;
@@ -72,13 +74,14 @@ function extractPersons() {
     documents.forEach((art) => {
         let pers = art.linguistics.persons;
         pers.forEach((elem) => {
-            if(elem.lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"|\&quot]/g)){
-                let lemma_space = elem.lemma.replace(/ /g, "_");
-                bugs.push(lemma_space);
-            } else {
-                let lemma_space = elem.lemma.replace(/ /g, "_");
-                help_array.push(lemma_space);
-            }
+            help_array.push(elem);
+            // if(elem.lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"|\&quot]/g)){
+            //     let lemma_space = elem.lemma.replace(/ /g, "_");
+            //     bugs.push(lemma_space);
+            // } else {
+            //     let lemma_space = elem.lemma.replace(/ /g, "_");
+                
+            // }
         })
     })
     let unique = [...new Set(help_array)];

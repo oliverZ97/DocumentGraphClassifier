@@ -11,6 +11,7 @@ module.exports = class DBManager {
     }
 
     insertArticleQueries(persons, locations, articles) {
+        egc.insertClasses();
         egc.insertLocations(locations);
         egc.insertPersons(persons)
         articles.forEach((elem) => {
