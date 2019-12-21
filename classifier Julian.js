@@ -11,7 +11,8 @@ let counter = 0;
 
 module.exports = getEntitiesOfArticleWithEntity = function () {
     let resultData = [];
-    let testSet = JSON.parse(fs.readFileSync("./testset.json"));
+    let promises = [];
+    let testSet = JSON.parse(fs.readFileSync("./small_testset.json"));
     console.log(testSet.length);
     testSet.forEach((art) => {
         let sim_results = [];
@@ -45,14 +46,11 @@ module.exports = getEntitiesOfArticleWithEntity = function () {
                 dataSet.push(lemma);
             }
         })
+        
         //dataSet.forEach((data) => {
         for (let index = 0; index < dataSet.length; index++) {
             let entity = dataSet[index];
-            let articles = dbm.getEntitiesOfArticleWithEntity(entity);
-            if (articles === undefined) {
-                continue;
-            } else {
-                articles.then((result) => {
+            var p = dbm.getEntitiesOfArticleWithEntity(entity).then((result) => {
                     if (result.results === undefined) {
                         console.log("No Articles found with Entity " + entity)
                     } else {
@@ -123,18 +121,26 @@ module.exports = getEntitiesOfArticleWithEntity = function () {
                             if (result.category !== undefined && result.value !== undefined) {
                                 console.log(resultString);
                                 resultData.push(resultString);
-                                writeResultDataToCSV(resultData);
                             }
 
                             //counter++;
                         }
 
                     }
-
+                    console.log('!!!SECOND!!!')
+                    return resultString;
                 })
-            }
+
+            // adding the promise to the list of work
+            promises.push(p);
         }
 
+    })
+    // wait for all promises to resolve, write then
+    Promise.all(promises)
+    .then(results => {
+        console.log('!!!third!!!', results)
+        writeResultDataToCSV(resultData)
     })
 }
 

@@ -51,13 +51,13 @@ function extractLocations() {
     documents.forEach((art) => {
         let geos = art.linguistics.geos;
         geos.forEach((elem) => {
-            if(elem.lemma.match(/[\'|\+|\’|\,|\(\)|\/]/g)){
-                let lemma_space = elem.lemma.replace(/ /g, "_");
-                bugs.push(lemma_space);
-            } else {
+            // if(elem.lemma.match(/[\'|\+|\’|\,|\(\)|\/]/g)){
+                // let lemma_space = elem.lemma.replace(/ /g, "_");
+                // bugs.push(lemma_space);
+            // } else {
                 let lemma_space = elem.lemma.replace(/ /g, "_");
                 help_array.push(lemma_space);
-            }
+            // }
         })
     })
     let unique = [...new Set(help_array)];
