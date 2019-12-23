@@ -300,7 +300,7 @@ function writeResultDataToCSV(resultData) {
     resultData.forEach((elem) => {
         csv += elem + "\n"
     })
-    fs.writeFileSync("./resultData.csv", csv);
+    fs.writeFileSync("./results/resultData.csv", csv);
     console.log("Successfully write results in resultData.csv!")
 }
 
