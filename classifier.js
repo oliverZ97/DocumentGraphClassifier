@@ -16,102 +16,27 @@ module.exports = getEntitiesOfArticleWithEntity = function () {
     testSet.forEach((art) => {
         let sim_results = [];
         let dataSet = [];
-        let result = "";
         let help = art.linguistics.geos.concat(art.linguistics.persons);
         help.forEach((elem) => {
             if (elem.lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
-                let lemma_space = elem.lemma.replace(/ /g, "_");
-                let specialChars = ['\'', '\+', '\’', '\,', '\(', '\)', '\/', '\.', '\"']
-                // while (elem.lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
-                //     console.log("Before ", elem.lemma);
-                //     for (let i = 0; i < specialChars.length; i++) {
-                //        let char = specialChars[i];
-                //        if(lemma_space.match("["+ char + "]")){
-                //            let split = lemma_space.split(char);
-                //            console.log("Split1 ",split[1])
-                //            let newString = split[0] + "\\" + char + split[1];
-                //            lemma_space = newString;
-                //            console.log(lemma_space);
-                //        } else {
-                //            continue;
-                //        }
-                //        break;
-                //     }
-                //     break;
-                // }
-                bugs.push(lemma_space);
-            } else {
-                let lemma = elem.lemma.replace(/ /g, "_")
-                dataSet.push(lemma);
+                bugs.push(elem.lemma);
             }
+            dataSet.push(elem.lemma);
         })
-        //dataSet.forEach((data) => {
         for (let index = 0; index < dataSet.length; index++) {
-            let entity = dataSet[index];
+            let entity = dataSet[index].replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
+            //console.log("GET ARTICLES FOR ENTITY: ", entity)
             let articles = dbm.getEntitiesOfArticleWithEntity(entity);
             if (articles === undefined) {
                 continue;
             } else {
                 articles.then((result) => {
-                    if (result.results === undefined) {
-                        console.log("No Articles found with Entity " + entity)
+                    //console.log("RESULT ",result)
+                    if (result.results === undefined || result.results.bindings.length === 0) {
+                        console.log("NUMBER OF ARTICLES WITH ENTITY " + entity + ": " + result.results.bindings.length);
                     } else {
                         let statements = result.results.bindings;
-                        //console.log(statements);
-                        let inDegree = 0;
-                        let betweeness = 0;
-                        if (statements.length === 0) {
-                            console.log("No Articles found with Entity " + dataSet[index])
-                        } else {
-                            inDegree = statements[0].inDegree.value;
-                            betweeness = statements[0].betweeness.value;
-                        }
-                        let allarticles = []
-                        let help = [];
-                        let centrality = {
-                            value: dataSet[index],
-                            inDegree: inDegree,
-                            betweeness: betweeness
-                        };
-                        //console.log(centrality);
-                        centralities.push(centrality);
-                        statements.forEach((elem) => {
-                            let cleanS = elem.s.value.replace("http://example.org/dgc#", "");
-                            help.push(cleanS);
-                        })
-                        let ids = [...new Set(help)]
-                        ids.forEach((id) => {
-                            let properties = [];
-                            statements.forEach((elem) => {
-                                let cleanS = elem.s.value.replace("http://example.org/dgc#", "");
-                                if (id.match(cleanS)) {
-                                    properties.push(elem);
-                                }
-                            })
-                            let article = {}
-                            let entities = []
-                            let art_id = "";
-                            let cat = "";
-                            properties.forEach((prop) => {
-                                if (prop.p.value.match(/mentions/)) {
-                                    let cleanO = prop.o.value.split("#")[1];
-                                    entities.push(cleanO);
-                                }
-                                if (prop.p.value.match(/hasId/)) {
-                                    art_id = prop.o.value;
-                                }
-                                if (prop.p.value.match(/hasRealCategory/)) {
-                                    cat = prop.o.value;
-                                }
-                            })
-                            article.id = art_id;
-                            article.category = cat;
-                            article.entities = entities;
-                            allarticles.push(article)
-                        })
-                        //console.log("Entität: ", dataSet[index]);
-                        //console.log(allarticles.length); //contains Objects of all Articles, which contains the actual Entity "dataSet[index]"
-                        let resultOfRound = splitArticlesToCategory(allarticles, dataSet[index], dataSet) //split all articles to arrays with same category
+                        let resultOfRound = classifierController(statements, entity, dataSet);
                         sim_results.push(resultOfRound);
                         if (sim_results.length === dataSet.length) {
                             result = computeFinalAvgSim(sim_results);
@@ -125,10 +50,7 @@ module.exports = getEntitiesOfArticleWithEntity = function () {
                                 resultData.push(resultString);
                                 writeResultDataToCSV(resultData);
                             }
-
-                            //counter++;
                         }
-
                     }
 
                 })
@@ -136,6 +58,78 @@ module.exports = getEntitiesOfArticleWithEntity = function () {
         }
 
     })
+}
+function classifierController(statements, entity, dataSet) {
+    let inDegree = statements[0].inDegree.value;
+    let betweeness = statements[0].betweeness.value;
+    let allarticles = []
+    let help = [];
+    createCentralityObject(entity, inDegree, betweeness)
+    //console.log(statements.length);
+    statements.forEach((elem) => {
+        //let cleanS = elem.s.value.replace("http://example.org/dgc#", "");
+        help.push(elem.s.value);
+    })
+    let ids = [...new Set(help)]
+    let articles = createArrayWithArticleObjects(ids, statements);
+    allarticles = articles
+    console.log(allarticles.length);
+    //console.log("Entität: ", dataSet[index]);
+    //console.log(allarticles.length); //contains Objects of all Articles, which contains the actual Entity "dataSet[index]"
+    let resultOfRound = splitArticlesToCategory(allarticles, entity, dataSet) //split all articles to arrays with same category
+    return resultOfRound;
+}
+
+function createArrayWithArticleObjects(ids, statements) {
+    articles = []
+    ids.forEach((id) => {
+        let properties = [];
+        statements.forEach((elem) => {
+            let cleanS = replaceIriPrefix(elem);
+            if (id.match(cleanS)) {
+                properties.push(elem);
+            }
+        })
+        let article = createArticleObject(properties);
+        articles.push(article);
+    })
+    return articles;
+}
+
+function createArticleObject(properties) {
+    let article = {}
+    let entities = []
+    let art_id = "";
+    let cat = "";
+    properties.forEach((prop) => {
+        if (prop.p.value.match(/mentions/)) {
+            let cleanO = prop.o.value.split("#")[1];
+            entities.push(cleanO);
+        }
+        if (prop.p.value.match(/hasId/)) {
+            art_id = prop.o.value;
+        }
+        if (prop.p.value.match(/hasRealCategory/)) {
+            cat = prop.o.value;
+        }
+    })
+    article.id = art_id;
+    article.category = cat;
+    article.entities = entities;
+    return article;
+}
+
+function replaceIriPrefix(elem) {
+    return elem.s.value.replace("http://example.org/dgc#", "");
+}
+
+function createCentralityObject(entity, inDegree, betweeness) {
+    let centrality = {
+        value: entity,
+        inDegree: inDegree,
+        betweeness: betweeness
+    };
+    centralities.push(centrality);
 }
 
 function computeFinalAvgSim(sim_results) {
@@ -147,7 +141,7 @@ function computeFinalAvgSim(sim_results) {
     let sum_inDegree = 0;
     let sum_bc = 0
     sim_results.forEach((set) => {
-        console.log(set);
+        //console.log(set);
         if (set.number !== "empty") {
             // sum_p += (set.politic * ((set.inDegree / 1000) + (set.betweeness / 1000))) * 10;
             // sum_e += (set.economy * ((set.inDegree / 1000) + (set.betweeness / 1000))) * 10;
@@ -164,7 +158,7 @@ function computeFinalAvgSim(sim_results) {
             sum_inDegree += parseFloat(set.inDegree);
             sum_bc += parseFloat(set.betweeness);
             index++;
-            console.log("SUM_P: %s SUM_E: %s SUM_C: %s SUM_S: %s INDEGREE: %s BC: %s", sum_p, sum_e, sum_c, sum_s, sum_inDegree, sum_bc)
+            console.log("SUM_P: %s SUM_E: %s SUM_C: %s SUM_S: %s INDEGREE: %s BC: %s at %s", sum_p, sum_e, sum_c, sum_s, sum_inDegree, sum_bc, set.value)
         } else {
             console.log("empty set at ", set.value)
         }
@@ -223,6 +217,7 @@ function splitArticlesToCategory(articles, data, dataSet) {
         let economy = [];
         let culture = [];
         let sport = [];
+        //console.log("Start Sorting Articles with Entity ", data)
         articles.forEach((art) => {
             switch (art.category) {
                 case "Politik":
@@ -239,6 +234,7 @@ function splitArticlesToCategory(articles, data, dataSet) {
                     break;
             }
         })
+        console.log("Found P: " + politic.length + " E: " + economy.length + " C: " + culture.length + " S: " + sport.length + " at " + data);
         let sim_p = cosinePreparation(politic, dataSet); //avg similarity of category politics with dataSet
         let sim_e = cosinePreparation(economy, dataSet);
         let sim_c = cosinePreparation(culture, dataSet);
@@ -249,6 +245,7 @@ function splitArticlesToCategory(articles, data, dataSet) {
             if (c.value === data) {
                 inDegree = c.inDegree;
                 betweeness = c.betweeness
+                console.log(c)
             }
         })
         let result = {
@@ -260,7 +257,6 @@ function splitArticlesToCategory(articles, data, dataSet) {
             inDegree: inDegree,
             betweeness: betweeness
         }
-        //console.log("P: " + politic.length + " E: " + economy.length + " C: " + culture.length + " S: " + sport.length);
         return result;
     }
     return {
@@ -291,9 +287,11 @@ function cosinePreparation(array, dataSet) {
         index++;
     })
     averageCosineSimilarity = sum / index;
+
     if (index === 0 && sum === 0) {
         averageCosineSimilarity = 0;
     }
+    //console.log("ACS: ",averageCosineSimilarity)
     return averageCosineSimilarity;
 }
 

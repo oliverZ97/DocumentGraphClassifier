@@ -37,39 +37,39 @@ module.exports = class DBManager {
         if (article.locations !== undefined) {
             article.locations.forEach((geo) => {
                 let lemma = geo.lemma;
-                if (lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
-                    let bug = {
-                        id: article.id,
-                        lemma: lemma,
-                        type: "location"
-                    };
-                    bugs.push(bug);
-                } else {
-                    let cleanGeo = lemma.replace(/ /g, "_");
+                // if (lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
+                //     let bug = {
+                //         id: article.id,
+                //         lemma: lemma,
+                //         type: "location"
+                //     };
+                //     bugs.push(bug);
+                // } else {
+                    let cleanGeo = lemma.replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
                     let tri_geo = prefix + article.id + " " + prefix + "mentions " + prefix + cleanGeo + ". \n";
                     let tri_geo_value = prefix + cleanGeo + " " + prefix + "hasValue \"" + lemma + "\". \n";
                     let tri_geo_type = prefix + cleanGeo + " rdf:Type " + prefix + "Location. \n";
                     triples = triples + tri_geo + tri_geo_value + tri_geo_type;
-                }
+                // }
             })
         }
         if (article.persons !== undefined) {
             article.persons.forEach((pers) => {
                 let lemma = pers.lemma;
-                if (lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
-                    let bug = {
-                        id: article.id,
-                        lemma: lemma,
-                        type: "person"
-                    };
-                    bugs.push(bug);
-                } else {
-                    let cleanPers = lemma.replace(/ /g, "_");
+                // if (lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
+                //     let bug = {
+                //         id: article.id,
+                //         lemma: lemma,
+                //         type: "person"
+                //     };
+                //     bugs.push(bug);
+                // } else {
+                    let cleanPers = lemma.replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
                     let tri_pers = prefix + article.id + " " + prefix + "mentions " + prefix + cleanPers + ". \n";
                     let tri_pers_value = prefix + cleanPers + " " + prefix + "hasValue \"" + lemma + "\". \n";
                     let tri_pers_type = prefix + cleanPers + " rdf:Type " + prefix + "Person. \n";
                     triples = triples + tri_pers + tri_pers_value + tri_pers_type;
-                }
+                // }
             })
         }
         return triples;

@@ -13,7 +13,7 @@ const
     GRAPHDB_REPOSITORY = 'dgc',
     GRAPHDB_USERNAME = 'oliverZ',
     GRAPHDB_PASSWORD = 'oliverZ',
-    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc'
+    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc-test'
     ;
 
 // the default prefixes for all SPARQL queries
@@ -62,9 +62,10 @@ where {
     insertLocations: async function (locations) {
         let triples = ""
         locations.forEach(element => {
-            let value = element.replace(/XXX/, "'")
-            let triple_type = "dgc:" + element + " rdf:Type dgc:Location. \n" 
-            let triple_value = "dgc:" + element + " dgc:hasValue \"" + value +"\". \n"
+            let iriString = element.replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
+            let value = element;
+            let triple_type = "dgc:" + iriString + " rdf:Type dgc:Location. \n" 
+            let triple_value = "dgc:" + iriString + " dgc:hasValue \"" + value +"\". \n"
             triples = triples + triple_type + triple_value;
         });
         //fs.writeFileSync("help.txt", triples);
@@ -81,9 +82,10 @@ where {
     insertPersons: async function (persons) {
         let triples = ""
         persons.forEach(element => {
-            //let value = element.replace(/XXX/, "'")
-            let triple_type = "dgc:" + element + " rdf:Type dgc:Location. \n" 
-            let triple_value = "dgc:" + element + " dgc:hasValue \"" + element +"\". \n"
+            let iriString = element.replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
+            let value = element;
+            let triple_type = "dgc:" + iriString + " rdf:Type dgc:Location. \n" 
+            let triple_value = "dgc:" + iriString + " dgc:hasValue \"" + value +"\". \n"
             triples = triples + triple_type + triple_value;
         });
         fs.writeFileSync("persons.txt", triples);
@@ -92,9 +94,9 @@ where {
             graph <${GRAPHDB_CONTEXT_TEST}> {` +
             triples + `\n } }`
         let resp = await this.graphDBEndpoint.update(query);
-        // console.log(triples + " " +
-        //     (resp.success ? 'succeeded' : 'failed') +
-        //     ':\n' + JSON.stringify(resp, null, 2));
+        console.log(triples + " " +
+             (resp.success ? 'succeeded' : 'failed') +
+             ':\n' + JSON.stringify(resp, null, 2));
     },
 
     demoInsert: async function (triple) {
@@ -167,7 +169,6 @@ where {
 delete data from <${GRAPHDB_CONTEXT_TEST}>
 {`+ triples + `}`
         );
-        console.log(subject);
         console.log('Delete ' +
             (resp.success ? 'succeeded' : 'failed') +
             ':\n' + JSON.stringify(resp, null, 2));
@@ -366,6 +367,7 @@ where {`
     },
 
     getEntitiesOfArticĺeWithEntity: async function (entity) {
+        //console.log("ENTITY OF QUERY ", entity)
         let query = await this.graphDBEndpoint.query(`
 select *
 	from <${GRAPHDB_CONTEXT_TEST}>
@@ -375,6 +377,9 @@ dgc:` + entity + ` dgc:inDegree ?inDegree.
 dgc:` + entity + ` dgc:betweenessCentrality ?betweeness.
 }`
         );
+        if(query === null){
+            console.error("Query failed at Entity ", entity)
+        }
         if (query.success) {
             resp = await this.graphDBEndpoint.transformBindingsToResultSet(query);
             //csv = await this.graphDBEndpoint.transformBindingsToCSV(query);
@@ -382,13 +387,13 @@ dgc:` + entity + ` dgc:betweenessCentrality ?betweeness.
         } else {
             let lMsg = query.message;
             if (400 === query.statusCode) {
-                lMsg += ', check your query for potential errors';
+                lMsg += ', check your query for potential errors at entity ' + entity;
             } else if (403 === query.statusCode) {
                 lMsg += ', check if user "' + GRAPHDB_USERNAME +
                     '" has appropriate access rights to the Repository ' +
                     '"' + this.graphDBEndpoint.getRepository() + '"';
             }
-            console.log("Query failed (" + lMsg + "):\n" +
+            console.log("Query failed (" + lMsg + "at Entity " + entity +"):\n" +
                 JSON.stringify(query, null, 2));
         }
         return query;
