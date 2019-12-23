@@ -1,122 +1,22 @@
-//const fetch = require("whatwg-fetch");
-let bayes = require("./naive-bayes");
+let classifier = require("./classifier");
+let importer = require("./dataImport");
+let calc = require("./centrality-algorithms");
 
-
-var rdm_art = 1;
-//var dataImport = require("./dataImport");
-
-function getRandomArticle() {
-    rdm_art = Math.round(Math.random() * 100, 0)
-    let http = new XMLHttpRequest();
-    let url = "http://localhost:3300/dgc?nr=" + rdm_art;
-    http.responseType = 'json'
-    http.open("GET", url);
-    http.send();
-
-    http.onreadystatechange = (e) => {
-        if (http.readyState === 4) {
-            let res = http.response.id;
-            document.getElementById("art_id").innerHTML = res;
-        }
+function controller(option) {
+    switch (option) {
+        case "import":
+            importer.parseJSONFile();
+            break;
+        case "calculate":
+            calc.getAllNodesFromDB();
+        case "classifier":
+            classifier.getEntitiesOfArticleWithEntity();
+            break;
+        default:
+            classifier.getEntitiesOfArticleWithEntity();
+            break;
     }
 }
 
-function checkState() {
-    let check = false;
-    if (checkbox.checked == true) {
-        check = true;
-    }
-    return check;
-}
-
-function startClassifier() {
-    let isNaiveBayes = checkState();
-    document.getElementById("checkbox")
-    if (isNaiveBayes) {
-
-    } else {
-        getEntitiesOfArticle()
-        console.log("BACK")
-        //computeArticleSumsOfEntities()
-    }
-}
-
-function getEntitiesOfArticle() {
-    let article_iri = document.getElementById("art_id").innerHTML.replace("http://example.org/dgc#", "");
-    if (article_iri === "") {
-        document.getElementById("art_id").innerHTML = "Please select an Article first!"
-    } else {
-        let http = new XMLHttpRequest();
-        let url = "http://localhost:3300/dgc?art=" + article_iri;
-        http.responseType = 'json'
-        http.open("GET", url);
-        http.send();
-
-        http.onreadystatechange = (e) => {
-            if (http.readyState === 4) {
-                let res = http.response;
-                //console.log(res);
-
-                let tbody = document.getElementById("tbody");
-                while (tbody.rows.length > 0) {
-                    tbody.deleteRow(0);
-                }
-                for (let i = 0; i < res.length; i++) {
-
-                    let row = document.createElement("tr");
-                    let td_p = document.createElement("td");
-                    let td_o = document.createElement("td");
-
-                    let text_p = document.createTextNode(res[i].p.value);
-                    let text_o = document.createTextNode(res[i].o.value);
-
-                    td_p.appendChild(text_p);
-                    td_o.appendChild(text_o);
-                    row.appendChild(td_p);
-                    row.appendChild(td_o);
-                    tbody.appendChild(row);
-                }
-            }
-            computeArticleSumsOfEntities()
-        }
-        
-    }
-}
-
-function getDocumentsFromInput(filelist) {
-    const files = filelist
-    console.log(files)
-    for (let i = 0; i < files.length; i++) {
-        console.log("File: ", files.item(i));
-    }
-}
-
-function computeArticleSumsOfEntities() {
-    //let rows = Array.from(tbody.children);
-    let tds = Array.from(document.getElementsByTagName("td"))
-    // console.log(rows.length)
-    // rows.forEach(function (row) {
-    //     let tds = Array.from(row.children);
-        console.log(tds.length)
-        for(let i = 1; i < tds.length; i + 2){
-            console.log(i)
-            console.log(tds[i].innerHTML);
-        }
-    // })
-    // entity.foreach(element => {
-    //     console.log("go!")
-    //     let entity = element.o.value
-    //     let http = new XMLHttpRequest();
-    //     let url = "http://localhost:3300/dgc?entity=" + entity;
-    //     http.responseType = 'json'
-    //     http.open("GET", url);
-    //     http.send();
-
-    //     http.onreadystatechange = (e) => {
-    //         if (http.readyState === 4) {
-    //             let res = http.response.id;
-    //             document.getElementById("art_id").innerHTML = res;
-    //         }
-    //     }
-    // })
-}
+//https://nodejs.org/en/knowledge/command-line/how-to-parse-command-line-arguments/
+controller(process.argv[2])
