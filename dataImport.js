@@ -6,7 +6,7 @@ var locations = [];
 var persons = [];
 var articles = [];
 
-function parseJSONFile() {
+module.exports = parseJSONFile = function() {
     let filedir = fs.readdirSync("./data");
     filedir.forEach((file) => {
         let filestring = fs.readFileSync("./data/" + file);
@@ -16,11 +16,11 @@ function parseJSONFile() {
             documents.push(elem);
         })
     })
-    console.log(documents[0].linguistics.geos);
+    let setup = setupSchema();
     extractLocations();
     extractPersons();
     setArticles();
-    dbm.insertArticleQueries(persons, locations, articles);
+    dbm.insertArticleQueries(setup, persons, locations, articles);
 }
 
 function setArticles() {
@@ -47,7 +47,6 @@ function extractDocuments(jsonobj) {
 
 function extractLocations() {
     let help_array = [];
-    let bugs = [];
     documents.forEach((art) => {
         let geos = art.linguistics.geos;
         geos.forEach((elem) => {
@@ -55,8 +54,6 @@ function extractLocations() {
         })
     })
     let unique = [...new Set(help_array)];
-    console.log(bugs)
-    //escapeSpecialChars(bugs);
     locations = unique;
 }
 
@@ -73,20 +70,30 @@ function extractPersons() {
     persons = unique;
 }
 
-function escapeSpecialChars(bugs) {
-    for (let i = 0; i < bugs.length; i++) {
-        let index = bugs[i].search(/[\'|\+|\’|\,|\(\)|\/]/);
-        console.log(bugs[i], index);
-        let start = bugs[i].slice(0, index - 1);
-        let end = bugs[i].slice(index - 1, -1);
-        let newString = start + "\\" + end;
-        console.log(newString);
-        bugs[i] = newString
-    }
-    //console.log(bugs)
+function setupSchema() {
+    let triples = "" +
+    "dgc:Article rdf:Type rdf:Class. \n dgc:Location rdf:Type rdf:Class. \n dgc:Person rdf:Type rdf:Class. \n" +
+    "dgc:mentions rdf:Type rdf:Property. \n dgc:hasId rdf:Type rdf:Property. \n dgc:hasAuthor rdf:Type rdf:Property. \n" +
+    "dgc:hasRealCategory rdf:Type rdf:Property. \n dgc:hasLanguage rdf:Type rdf:Property. \n dgc:hasTitle rdf:Type rdf:Property. \n" +
+    "dgc:nodeDegree rdf:Type rdf:Property. \n dgc:inDegree rdf:Type rdf:Property. \n dgc:outDegree rdf:Type rdf:Property. \n" +
+    "dgc:betweenessCentrality rdf:Type rdf:Property. \n dgc:hasValue rdf:Type rdf:Property. \n" +
+    "dgc:hasAuthor rdfs:domain dgc:Article. \n dgc:Author rdfs:range rdfs:Literal. \n dgc:mentions rdfs:domain dgc:Article. \n" +
+    "dgc:mentions rdfs:range dgc:Person. \n dgc:mentions rdfs:range dgc:Location. \n dgc:hasId rdfs:domain dgc:Article. \n" +
+    "dgc:hasId rdfs:range rdfs:Literal. \n dgc:hasRealCategory rdfs:domain dgc:Article. \n dgc:hasRealCategory rdfs:range rdfs:Literal. \n" +
+    "dgc:hasLanguage rdfs:domain dgc:Article. \n dgc:hasLanguage rdfs:range rdfs:Literal. \n dgc:hasTitle rdfs:domain dgc:Article. \n" + 
+    "dgc:hasTitle rdfs:range rdfs:Literal. \n dgc:nodeDegree rdfs:domain dgc:Article. \n dgc:nodeDegree rdfs:domain dgc:Person. \n " +
+    "dgc:nodeDegree rdfs:domain dgc:Location. \n dgc:nodeDegree rdfs:domain rdf:Class. dgc:nodeDegree rdfs:range rdfs:Literal. \n " +
+    "dgc:inDegree rdfs:domain dgc:Article. \n dgc:inDegree rdfs:domain dgc:Person. \n dgc:inDegree rdfs:domain dgc:Location. \n " +
+    "dgc:inDegree rdfs:domain rdf:Class. \n dgc:inDegree rdfs:range rdfs:Literal. \n dgc:outDegree rdfs:domain dgc:Article. \n " +
+    "dgc:outDegree rdfs:domain dgc:Person. \n dgc:outDegree rdfs:domain dgc:Location. \n dgc:outDegree rdfs:domain rdf:Class. \n" +
+    "dgc:outDegree rdfs:range rdfs:Literal. \n dgc:betweenessCentrality rdfs:domain dgc:Article. \n dgc:betweenessCentrality rdfs:domain dgc:Person. \n" +
+    "dgc:betweenessCentrality rdfs:domain dgc:Location. \n dgc:betweenessCentrality rdfs:domain rdf:Class. \n dgc:betweenessCentrality rdfs:range rdfs:Literal. \n" +
+    "dgc:hasValue rdfs:domain dgc:Person. \n dgc:hasValue rdfs:domain dgc:Location. \n dgc:hasValue rdfs:range rdfs:Literal. \n";
+    return triples;
 }
 
 parseJSONFile()
+
 
 
 
