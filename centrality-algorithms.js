@@ -4,7 +4,7 @@ const dbManager = require("./dbManager")
 var dbm = new dbManager();
 
 
-function getAllNodesFromDB() {
+module.exports = getAllNodesFromDB = function() {
     let nodes = dbm.getAllNodes()
     //console.log("NODES: ", nodes);
     nodes.then(function (result) {
@@ -17,27 +17,6 @@ function getAllNodesFromDB() {
         console.log(err);
     })
 }
-
-// function getActualNodeDegree() {
-//     let nodes = dbm.getActualNodeDegree()
-//     //console.log("NODES: ", nodes);
-//     nodes.then(function (result) {
-//         //console.log(result.results.bindings);
-//         let nodeSets = result.results.bindings;
-//         console.log(nodeSets);
-//         updateNodeDegree(nodeSets)
-//         //let keys = Object.keys(nodeSets);
-//         //console.log(keys);
-//     }).catch(function (err) {
-//         console.log(err);
-//     })
-// }
-
-// function updateNodeDegree(nodeSets) {
-//     nodeSets.forEach(element => {
-//         let triple_new = ''
-//     })
-// }
 
 function computeCentralityAlgorithms(nodeSets) {
     nodeSets.forEach(element => {

@@ -10,7 +10,8 @@ module.exports = class DBManager {
 
     }
 
-    insertArticleQueries(persons, locations, articles) {
+    insertArticleQueries(setup, persons, locations, articles) {
+        egc.demoInsert(setup);
         egc.insertLocations(locations);
         egc.insertPersons(persons)
         articles.forEach((elem) => {
@@ -133,11 +134,12 @@ module.exports = class DBManager {
     }
 
     insertCentrality(centrality, centralityType) {
+        let allTriples = "";
         let object = JSON.parse(JSON.stringify(centrality));
         let keys = Object.keys(object)
         let values = Object.values(object);
         let triples = "";
-        let deleteTriples = ""
+        //let deleteTriples = ""
         for (let i = 0; i < keys.length; i++) {
             let uri = keys[i].replace("uri-", prefix);
             let triple_new = '';
@@ -145,19 +147,26 @@ module.exports = class DBManager {
             let predicate = prefix + centralityType;
             let object = values[i];
             triple_new = subject + ' ' + predicate + ' \"' + object + "\".\n"
+            if(subject === undefined || subject === "" || subject === " "){
+                console.log("Empty")
+                continue;
+            }
 
-            let tri_del = subject + ' ' + predicate + '?o.\n';
-            deleteTriples = deleteTriples + tri_del;
+            //let tri_del = subject + ' ' + predicate + '?o.\n';
+            //deleteTriples = deleteTriples + tri_del;
             triples = triples + triple_new;
             if (i % 2000 === 0) {
-                let deleteOld = egc.deleteTriples(deleteTriples);
+                allTriples = allTriples + triples + "\n";
+                //let deleteOld = egc.deleteTriples(deleteTriples);
                 let insert = egc.demoInsert(triples);
                 triples = "";
-                deleteTriples = ""
+                //deleteTriples = ""
             }
         }
-        let deleteOld = egc.deleteTriples(deleteTriples);
+        //let deleteOld = egc.deleteTriples(deleteTriples);
         let insert = egc.demoInsert(triples);
+        allTriples = allTriples + triples + "\n";
+        fs.writeFileSync("test.txt", allTriples);
     }
 
     getSumOfArticlesInCategoryWithEntity(entity) {

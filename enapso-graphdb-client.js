@@ -13,7 +13,7 @@ const
     GRAPHDB_REPOSITORY = 'dgc',
     GRAPHDB_USERNAME = 'oliverZ',
     GRAPHDB_PASSWORD = 'oliverZ',
-    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc-test'
+    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc2'
     ;
 
 // the default prefixes for all SPARQL queries
@@ -367,7 +367,7 @@ where {`
     },
 
     getEntitiesOfArticĺeWithEntity: async function (entity) {
-        //console.log("ENTITY OF QUERY ", entity)
+        console.log("ENTITY OF QUERY ", entity)
         let query = await this.graphDBEndpoint.query(`
 select *
 	from <${GRAPHDB_CONTEXT_TEST}>
@@ -383,7 +383,7 @@ dgc:` + entity + ` dgc:betweenessCentrality ?betweeness.
         if (query.success) {
             resp = await this.graphDBEndpoint.transformBindingsToResultSet(query);
             //csv = await this.graphDBEndpoint.transformBindingsToCSV(query);
-            //console.log("Query succeeded:\n" + JSON.stringify(resp, null, 2));
+            console.log("Query succeeded:\n" + JSON.stringify(resp, null, 2));
         } else {
             let lMsg = query.message;
             if (400 === query.statusCode) {

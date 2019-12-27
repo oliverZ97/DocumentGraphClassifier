@@ -3,41 +3,39 @@ const fs = require("fs");
 var dbManager = require('./dbManager');
 let dbm = new dbManager();
 
-let data1 = ["Boris_Becker", "Thomas_Müller", "Joachim_Löw", "Naomi_Osaka", "Angelique_Kerber"];
-//let sim_results = [];
 let centralities = [];
-let bugs = [];
-let counter = 0;
+let allArt = [];
+let successfulIds = [];
 
 module.exports = getEntitiesOfArticleWithEntity = function () {
     let resultData = [];
     let testSet = JSON.parse(fs.readFileSync("./testset.json"));
     console.log(testSet.length);
     testSet.forEach((art) => {
+        allArt.push(art);
         let sim_results = [];
         let dataSet = [];
         let help = art.linguistics.geos.concat(art.linguistics.persons);
         help.forEach((elem) => {
-            if (elem.lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
-                bugs.push(elem.lemma);
-            }
             dataSet.push(elem.lemma);
         })
+        console.log("DATASET LENGTH AT %s: %s", art.externalId, dataSet.length)
         for (let index = 0; index < dataSet.length; index++) {
             let entity = dataSet[index].replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
-            //console.log("GET ARTICLES FOR ENTITY: ", entity)
+            console.log("GET ARTICLES FOR ENTITY: ", entity)
             let articles = dbm.getEntitiesOfArticleWithEntity(entity);
             if (articles === undefined) {
                 continue;
             } else {
                 articles.then((result) => {
-                    //console.log("RESULT ",result)
+                    console.log("RESULT of Entity %s: %s",entity ,result.results.bindings.length)
                     if (result.results === undefined || result.results.bindings.length === 0) {
                         console.log("NUMBER OF ARTICLES WITH ENTITY " + entity + ": " + result.results.bindings.length);
                     } else {
                         let statements = result.results.bindings;
-                        let resultOfRound = classifierController(statements, entity, dataSet);
+                        let resultOfRound = classifierController(statements, entity, dataSet, art);
                         sim_results.push(resultOfRound);
+                        //console.log(resultOfRound);
                         if (sim_results.length === dataSet.length) {
                             result = computeFinalAvgSim(sim_results);
                             let correct = false;
@@ -46,9 +44,11 @@ module.exports = getEntitiesOfArticleWithEntity = function () {
                             }
                             let resultString = art.externalId + "," + art.category + "," + result.category + "," + result.value + "," + correct;
                             if (result.category !== undefined && result.value !== undefined) {
-                                console.log(resultString);
+                                //console.log(resultString);
+                                successfulIds.push(art.externalId);
                                 resultData.push(resultString);
                                 writeResultDataToCSV(resultData);
+                                writeFailedIdsToTxt();
                             }
                         }
                     }
@@ -59,7 +59,8 @@ module.exports = getEntitiesOfArticleWithEntity = function () {
 
     })
 }
-function classifierController(statements, entity, dataSet) {
+
+function classifierController(statements, entity, dataSet, art) {
     let inDegree = statements[0].inDegree.value;
     let betweeness = statements[0].betweeness.value;
     let allarticles = []
@@ -73,10 +74,10 @@ function classifierController(statements, entity, dataSet) {
     let ids = [...new Set(help)]
     let articles = createArrayWithArticleObjects(ids, statements);
     allarticles = articles
-    console.log(allarticles.length);
+    //console.log(allarticles.length);
     //console.log("Entität: ", dataSet[index]);
     //console.log(allarticles.length); //contains Objects of all Articles, which contains the actual Entity "dataSet[index]"
-    let resultOfRound = splitArticlesToCategory(allarticles, entity, dataSet) //split all articles to arrays with same category
+    let resultOfRound = splitArticlesToCategory(allarticles, entity, dataSet, art) //split all articles to arrays with same category
     return resultOfRound;
 }
 
@@ -141,7 +142,7 @@ function computeFinalAvgSim(sim_results) {
     let sum_inDegree = 0;
     let sum_bc = 0
     sim_results.forEach((set) => {
-        //console.log(set);
+        //console.log("SET ",set);
         if (set.number !== "empty") {
             // sum_p += (set.politic * ((set.inDegree / 1000) + (set.betweeness / 1000))) * 10;
             // sum_e += (set.economy * ((set.inDegree / 1000) + (set.betweeness / 1000))) * 10;
@@ -158,9 +159,9 @@ function computeFinalAvgSim(sim_results) {
             sum_inDegree += parseFloat(set.inDegree);
             sum_bc += parseFloat(set.betweeness);
             index++;
-            console.log("SUM_P: %s SUM_E: %s SUM_C: %s SUM_S: %s INDEGREE: %s BC: %s at %s", sum_p, sum_e, sum_c, sum_s, sum_inDegree, sum_bc, set.value)
+            //console.log("SUM_P: %s SUM_E: %s SUM_C: %s SUM_S: %s INDEGREE: %s BC: %s at %s", sum_p, sum_e, sum_c, sum_s, sum_inDegree, sum_bc, set.value)
         } else {
-            console.log("empty set at ", set.value)
+            //console.log("empty set at ", set.value)
         }
     })
     // let avg_sim_p = sum_p / index;
@@ -172,7 +173,7 @@ function computeFinalAvgSim(sim_results) {
     let avg_sim_c = (sum_c / index) * 0.4 + (sum_inDegree / index) * 0.3 + (sum_bc / index) * 0.3;
     let avg_sim_s = (sum_s / index) * 0.4 + (sum_inDegree / index) * 0.3 + (sum_bc / index) * 0.3;
 
-    console.log("sim p " + avg_sim_p + " sim e " + avg_sim_e + " sim c " + avg_sim_c + " sim s " + avg_sim_s);
+    //console.log("sim p " + avg_sim_p + " sim e " + avg_sim_e + " sim c " + avg_sim_c + " sim s " + avg_sim_s);
     let final_sims = [
         {
             category: "Politik",
@@ -211,7 +212,7 @@ function computeFinalAvgSim(sim_results) {
     return category;
 }
 
-function splitArticlesToCategory(articles, data, dataSet) {
+function splitArticlesToCategory(articles, data, dataSet, art) {
     if (articles.length !== 0) {
         let politic = [];
         let economy = [];
@@ -234,18 +235,18 @@ function splitArticlesToCategory(articles, data, dataSet) {
                     break;
             }
         })
-        console.log("Found P: " + politic.length + " E: " + economy.length + " C: " + culture.length + " S: " + sport.length + " at " + data);
-        let sim_p = cosinePreparation(politic, dataSet); //avg similarity of category politics with dataSet
-        let sim_e = cosinePreparation(economy, dataSet);
-        let sim_c = cosinePreparation(culture, dataSet);
-        let sim_s = cosinePreparation(sport, dataSet);
+        //console.log("Found P: " + politic.length + " E: " + economy.length + " C: " + culture.length + " S: " + sport.length + " at " + data);
+        let sim_p = cosinePreparation(politic, dataSet, art); //avg similarity of category politics with dataSet
+        let sim_e = cosinePreparation(economy, dataSet, art);
+        let sim_c = cosinePreparation(culture, dataSet, art);
+        let sim_s = cosinePreparation(sport, dataSet, art);
         let inDegree = 0;
         let betweeness = 0;
         centralities.forEach((c) => {
             if (c.value === data) {
                 inDegree = c.inDegree;
                 betweeness = c.betweeness
-                console.log(c)
+                //console.log(c)
             }
         })
         let result = {
@@ -265,19 +266,20 @@ function splitArticlesToCategory(articles, data, dataSet) {
     };
 }
 
-function computeCosineSimilarity(article, dataSet) {
+function computeCosineSimilarity(article, dataSet, art) {
     //console.log("DATASET: ", dataSet);
     //console.log("ENTITES: ", article.entities);
 
     let similarity = cosine(dataSet, article.entities);
     //console.log(similarity);
-    if (similarity === NaN) {
+    if (Number.isNaN(similarity)) {
         similarity = 0;
+        console.log("SIM is NaN at ", art.externalId)
     }
     return similarity;
 }
 
-function cosinePreparation(array, dataSet) {
+function cosinePreparation(array, dataSet, art) {
     let sum = 0;
     let index = 0;
     let averageCosineSimilarity = 0;
@@ -286,12 +288,16 @@ function cosinePreparation(array, dataSet) {
         sum += similarity
         index++;
     })
+
     averageCosineSimilarity = sum / index;
+    if(Number.isNaN(averageCosineSimilarity) || averageCosineSimilarity === undefined){
+        console.log("NaN or undefined at ", art.externalId)
+    }
 
     if (index === 0 && sum === 0) {
         averageCosineSimilarity = 0;
     }
-    //console.log("ACS: ",averageCosineSimilarity)
+    console.log("ACS: %s",averageCosineSimilarity)
     return averageCosineSimilarity;
 }
 
@@ -301,7 +307,24 @@ function writeResultDataToCSV(resultData) {
         csv += elem + "\n"
     })
     fs.writeFileSync("./results/resultData.csv", csv);
-    console.log("Successfully write results in resultData.csv!")
+    //console.log("Successfully write results in resultData.csv!")
+}
+
+function writeFailedIdsToTxt(){
+    let failedIds = [];
+    allArt.forEach((art) => {
+        let isSuccessful = false;
+        successfulIds.forEach((sid) => {
+            if(art.externalId === sid){
+                isSuccessful = true;
+            }
+        })
+        if(!isSuccessful){
+            let idString = art.externalId + ", " + art.category + ", " + art.linguistics.geos + ", " + art.linguistics.persons + "\n";
+            failedIds.push(idString);
+        }
+    })
+    fs.writeFileSync("./failedIds.txt", failedIds);
 }
 
 getEntitiesOfArticleWithEntity();

@@ -3,17 +3,29 @@ let importer = require("./dataImport");
 let calc = require("./centrality-algorithms");
 
 function controller(option) {
+    console.log(option);
     switch (option) {
         case "import":
-            importer.parseJSONFile();
+            console.log("YOU CHOOSE THE IMPORT OPTION!")
+            importer.parseJSONFile;
             break;
         case "calculate":
-            calc.getAllNodesFromDB();
+            console.log("YOU CHOOSE THE CALCULATE OPTION!")
+            calc.getAllNodesFromDB;
+            break;
         case "classifier":
-            classifier.getEntitiesOfArticleWithEntity();
+            let ready = false;
+            console.log("YOU CHOOSE THE CLASSIFIER OPTION!")
+            classifier.getEntitiesOfArticleWithEntity;
+            console.log(p)
+            if(ready){
+                break;
+            }
             break;
         default:
-            classifier.getEntitiesOfArticleWithEntity();
+            console.log("YOU CHOOSE THE DEFAULT OPTION!")
+            let d = classifier.getEntitiesOfArticleWithEntity;
+            console.log(d)
             break;
     }
 }
