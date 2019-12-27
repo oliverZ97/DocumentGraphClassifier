@@ -1,7 +1,6 @@
 const request = require("request");
 const fs = require("fs");
 const egc = require('./enapso-graphdb-client');
-//const cenAlg = require("./centrality_algorithms");
 const prefix = 'dgc:'
 var bugs = [];
 
@@ -38,39 +37,21 @@ module.exports = class DBManager {
         if (article.locations !== undefined) {
             article.locations.forEach((geo) => {
                 let lemma = geo.lemma;
-                // if (lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
-                //     let bug = {
-                //         id: article.id,
-                //         lemma: lemma,
-                //         type: "location"
-                //     };
-                //     bugs.push(bug);
-                // } else {
-                    let cleanGeo = lemma.replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
-                    let tri_geo = prefix + article.id + " " + prefix + "mentions " + prefix + cleanGeo + ". \n";
-                    let tri_geo_value = prefix + cleanGeo + " " + prefix + "hasValue \"" + lemma + "\". \n";
-                    let tri_geo_type = prefix + cleanGeo + " rdf:Type " + prefix + "Location. \n";
-                    triples = triples + tri_geo + tri_geo_value + tri_geo_type;
-                // }
+                let cleanGeo = lemma.replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
+                let tri_geo = prefix + article.id + " " + prefix + "mentions " + prefix + cleanGeo + ". \n";
+                let tri_geo_value = prefix + cleanGeo + " " + prefix + "hasValue \"" + lemma + "\". \n";
+                let tri_geo_type = prefix + cleanGeo + " rdf:Type " + prefix + "Location. \n";
+                triples = triples + tri_geo + tri_geo_value + tri_geo_type;
             })
         }
         if (article.persons !== undefined) {
             article.persons.forEach((pers) => {
                 let lemma = pers.lemma;
-                // if (lemma.match(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g)) {
-                //     let bug = {
-                //         id: article.id,
-                //         lemma: lemma,
-                //         type: "person"
-                //     };
-                //     bugs.push(bug);
-                // } else {
-                    let cleanPers = lemma.replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
-                    let tri_pers = prefix + article.id + " " + prefix + "mentions " + prefix + cleanPers + ". \n";
-                    let tri_pers_value = prefix + cleanPers + " " + prefix + "hasValue \"" + lemma + "\". \n";
-                    let tri_pers_type = prefix + cleanPers + " rdf:Type " + prefix + "Person. \n";
-                    triples = triples + tri_pers + tri_pers_value + tri_pers_type;
-                // }
+                let cleanPers = lemma.replace(/ /g, "_").replace(/[\'|\+|\’|\,|\(|\)|\/|\.|\"]/g, "-");
+                let tri_pers = prefix + article.id + " " + prefix + "mentions " + prefix + cleanPers + ". \n";
+                let tri_pers_value = prefix + cleanPers + " " + prefix + "hasValue \"" + lemma + "\". \n";
+                let tri_pers_type = prefix + cleanPers + " rdf:Type " + prefix + "Person. \n";
+                triples = triples + tri_pers + tri_pers_value + tri_pers_type;
             })
         }
         return triples;
@@ -139,7 +120,6 @@ module.exports = class DBManager {
         let keys = Object.keys(object)
         let values = Object.values(object);
         let triples = "";
-        //let deleteTriples = ""
         for (let i = 0; i < keys.length; i++) {
             let uri = keys[i].replace("uri-", prefix);
             let triple_new = '';
@@ -147,26 +127,19 @@ module.exports = class DBManager {
             let predicate = prefix + centralityType;
             let object = values[i];
             triple_new = subject + ' ' + predicate + ' \"' + object + "\".\n"
-            if(subject === undefined || subject === "" || subject === " "){
+            if (subject === undefined || subject === "" || subject === " ") {
                 console.log("Empty")
                 continue;
             }
-
-            //let tri_del = subject + ' ' + predicate + '?o.\n';
-            //deleteTriples = deleteTriples + tri_del;
             triples = triples + triple_new;
             if (i % 2000 === 0) {
                 allTriples = allTriples + triples + "\n";
-                //let deleteOld = egc.deleteTriples(deleteTriples);
                 let insert = egc.demoInsert(triples);
                 triples = "";
-                //deleteTriples = ""
             }
         }
-        //let deleteOld = egc.deleteTriples(deleteTriples);
         let insert = egc.demoInsert(triples);
         allTriples = allTriples + triples + "\n";
-        fs.writeFileSync("test.txt", allTriples);
     }
 
     getSumOfArticlesInCategoryWithEntity(entity) {

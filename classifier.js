@@ -9,7 +9,7 @@ let successfulIds = [];
 
 module.exports = getEntitiesOfArticleWithEntity = function () {
     let resultData = [];
-    let testSet = JSON.parse(fs.readFileSync("./testset.json"));
+    let testSet = JSON.parse(fs.readFileSync("../results/testset.json"));
     console.log(testSet.length);
     testSet.forEach((art) => {
         allArt.push(art);
@@ -306,7 +306,7 @@ function writeResultDataToCSV(resultData) {
     resultData.forEach((elem) => {
         csv += elem + "\n"
     })
-    fs.writeFileSync("./results/resultData.csv", csv);
+    fs.writeFileSync("../results/resultData.csv", csv);
     //console.log("Successfully write results in resultData.csv!")
 }
 
@@ -324,7 +324,7 @@ function writeFailedIdsToTxt(){
             failedIds.push(idString);
         }
     })
-    fs.writeFileSync("./failedIds.txt", failedIds);
+    fs.writeFileSync("../results/failedIds.txt", failedIds);
 }
 
 getEntitiesOfArticleWithEntity();

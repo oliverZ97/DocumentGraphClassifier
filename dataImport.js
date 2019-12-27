@@ -7,14 +7,21 @@ var persons = [];
 var articles = [];
 
 module.exports = parseJSONFile = function() {
-    let filedir = fs.readdirSync("./data");
-    filedir.forEach((file) => {
-        let filestring = fs.readFileSync("./data/" + file);
-        let fileobj = JSON.parse(filestring);
-        let docs = extractDocuments(fileobj);
-        docs.forEach((elem) => {
-            documents.push(elem);
-        })
+    //let filedir = fs.readdirSync("../data");
+    // filedir.forEach((file) => {
+    //     let filestring = fs.readFileSync("../data/" + file);
+    //     let fileobj = JSON.parse(filestring);
+    //     let docs = extractDocuments(fileobj);
+    //     docs.forEach((elem) => {
+    //         documents.push(elem);
+    //     })
+    // })
+    let filestring = fs.readFileSync("../results/trainingset.json");
+    let fileobj = JSON.parse(filestring);
+    console.log(fileobj);
+    //let docs = extractDocuments(fileobj);
+    fileobj.forEach((elem) => {
+        documents.push(elem);
     })
     let setup = setupSchema();
     extractLocations();
