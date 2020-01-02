@@ -2,13 +2,10 @@ const centrality = require("ngraph.centrality");
 const g = require("ngraph.graph")();
 const dbManager = require("./dbManager")
 var dbm = new dbManager();
-
-
+/******************************************************************************************************/
 module.exports = getAllNodesFromDB = function() {
     let nodes = dbm.getAllNodes()
-    //console.log("NODES: ", nodes);
     nodes.then(function (result) {
-
         //All Nodes in the DB
         let nodeSets = result.results.bindings;
         //All Nodes with their NodeDegrees
@@ -17,12 +14,11 @@ module.exports = getAllNodesFromDB = function() {
         console.log(err);
     })
 }
-
+/******************************************************************************************************/
 function computeCentralityAlgorithms(nodeSets) {
     nodeSets.forEach(element => {
         let subject = removeUri(element.s.value);
         let object = removeUri(element.o.value);
-
         g.addLink(subject, object);
     })
     var degreeCentrality = centrality.degree(g);
@@ -35,14 +31,13 @@ function computeCentralityAlgorithms(nodeSets) {
     dbm.insertCentrality(outDegreeCentrality, "outDegree");
     dbm.insertCentrality(betweenessCentrality, "betweenessCentrality");
 }
-
+/******************************************************************************************************/
 function removeUri(string) {
     let newString = "";
     if (string.includes("http://example.org/dgc#")) {
         newString = string.replace("http://example.org/dgc#", "uri-")
-
     }
     return newString
 }
-
+/******************************************************************************************************/
 getAllNodesFromDB()
