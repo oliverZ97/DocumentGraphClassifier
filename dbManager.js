@@ -1,4 +1,3 @@
-const request = require("request");
 const fs = require("fs");
 const egc = require('./enapso-graphdb-client');
 const prefix = 'dgc:'
@@ -8,18 +7,18 @@ module.exports = class DBManager {
     constructor() {
 
     }
-
+    /******************************************************************************************************/
     insertArticleQueries(setup, persons, locations, articles) {
-        egc.demoInsert(setup);
+        egc.insertTriple(setup);
         egc.insertLocations(locations);
         egc.insertPersons(persons)
         articles.forEach((elem) => {
             let triples = this.createArticleTriples(elem);
-            egc.demoInsert(triples);
+            egc.insertTriple(triples);
         })
         console.log(bugs);
     }
-
+    /******************************************************************************************************/
     createArticleTriples(article) {
         let triples = ""
         let tri_type = prefix + article.id + " rdf:Type " + prefix + "Article . \n";
@@ -56,20 +55,7 @@ module.exports = class DBManager {
         }
         return triples;
     }
-
-    getUnclassifiedArticles(nr) {
-        let promise = new Promise(function (resolve, reject) {
-            let un_art = egc.getUnclassifiedArticles();
-            let rdm_art = 'test';
-            un_art.then(function (result) {
-                rdm_art = result.results.bindings[nr].article.value;
-                return resolve(rdm_art);
-            })
-
-        })
-        return (promise);
-    }
-
+    /******************************************************************************************************/
     getAllNodes() {
         let promise = new Promise(function (resolve, reject) {
             let nodes = egc.getAllNodes();
@@ -83,22 +69,7 @@ module.exports = class DBManager {
         })
         return (promise);
     }
-
-    getEntitiesOfArticle(art_id) {
-        let promise = new Promise(function (resolve, reject) {
-            let nodes = egc.getEntitiesOfArticĺe(prefix + art_id);
-            nodes.then(function (result) {
-
-                return resolve(result);
-            })
-                .catch(function (err) {
-                    console.log(err);
-                })
-
-        })
-        return (promise);
-    }
-
+    /******************************************************************************************************/
     getEntitiesOfArticleWithEntity(entity) {
         let promise = new Promise(function (resolve, reject) {
             let nodes = egc.getEntitiesOfArticĺeWithEntity(entity);
@@ -113,7 +84,7 @@ module.exports = class DBManager {
         })
         return (promise);
     }
-
+    /******************************************************************************************************/
     insertCentrality(centrality, centralityType) {
         let allTriples = "";
         let object = JSON.parse(JSON.stringify(centrality));
@@ -134,42 +105,11 @@ module.exports = class DBManager {
             triples = triples + triple_new;
             if (i % 2000 === 0) {
                 allTriples = allTriples + triples + "\n";
-                let insert = egc.demoInsert(triples);
+                egc.insertTriple(triples);
                 triples = "";
             }
         }
-        let insert = egc.demoInsert(triples);
+        egc.insertTriple(triples);
         allTriples = allTriples + triples + "\n";
     }
-
-    getSumOfArticlesInCategoryWithEntity(entity) {
-        console.log("TEEEEST!")
-        let promise = new Promise(function (resolve, reject) {
-            let wirtschaft = egc.getSumOfArticlesInCategoryWithEntity(entity, "Wirtschaft");
-            let politik = egc.getSumOfArticlesInCategoryWithEntity(entity, "Politik");
-            let kultur = egc.getSumOfArticlesInCategoryWithEntity(entity, "Kultur");
-            let sport = egc.getSumOfArticlesInCategoryWithEntity(entity, "Sport");
-
-            wirtschaft.then(function (result_w) {
-                console.log("Wirtschaft", result_w);
-                politik.then(function (result_p) {
-                    kultur.then(function (result_k) {
-                        sport.then(function (result_s) {
-                            console.log("Wirtschaft", result_w);
-                            console.log("Politik", result_p);
-                            console.log("Kultur", result_k);
-                            console.log("Sport", result_s);
-                            return resolve(result);
-                        })
-                    })
-                })
-            })
-                .catch(function (err) {
-                    console.log(err);
-                })
-
-        })
-        return (promise);
-    }
-
 }
