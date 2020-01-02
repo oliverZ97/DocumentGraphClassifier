@@ -12,7 +12,7 @@ const
     GRAPHDB_REPOSITORY = 'dgc',
     GRAPHDB_USERNAME = 'oliverZ',
     GRAPHDB_PASSWORD = 'oliverZ',
-    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgcX'
+    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc2'
     ;
 
 // the default prefixes for all SPARQL queries

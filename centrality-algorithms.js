@@ -6,9 +6,7 @@ var dbm = new dbManager();
 module.exports = getAllNodesFromDB = function() {
     let nodes = dbm.getAllNodes()
     nodes.then(function (result) {
-        //All Nodes in the DB
         let nodeSets = result.results.bindings;
-        //All Nodes with their NodeDegrees
         computeCentralityAlgorithms(nodeSets);
     }).catch(function (err) {
         console.log(err);
