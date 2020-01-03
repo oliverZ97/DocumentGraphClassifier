@@ -334,6 +334,7 @@ function splitArticlesToCategory(articles, entity, dataSet, art) {
     };
 }
 /******************************************************************************************************/
+//https://www.npmjs.com/package/calculate-cosine-similarity?activeTab=readme
 /*
 *description: calculates the cosine similarity between all entities of the article to classify
 *             and the entities of a given articles object.

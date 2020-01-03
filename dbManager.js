@@ -1,4 +1,3 @@
-const fs = require("fs");
 const egc = require('./enapso-graphdb-client');
 const prefix = 'dgc:'
 var bugs = [];
