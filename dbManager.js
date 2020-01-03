@@ -1,3 +1,13 @@
+/*******************************************************************************************************/
+/*******************************************************************************************************/
+/*
+*author: Oliver Ziemann
+*description: this script is responsible for the communication with the graphdb-client. It also transforms 
+*incoming data into triples and pass them to the graphdb-client. This script is like a middleman to pass 
+*data to one side and the results to the other side.
+*/
+/*******************************************************************************************************/
+/*******************************************************************************************************/
 const egc = require('./enapso-graphdb-client');
 const prefix = 'dgc:'
 var bugs = [];

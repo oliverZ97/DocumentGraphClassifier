@@ -1,3 +1,12 @@
+/*******************************************************************************************************/
+/*******************************************************************************************************/
+/*
+*author: Oliver Ziemann
+*description: this script is calculates different graph metrics like the node Degree of in- and outcoming 
+*edges or the betweeness centrality of a node. The results of all metrics are written in the database as triples.
+*/
+/*******************************************************************************************************/
+/*******************************************************************************************************/
 const centrality = require("ngraph.centrality");
 const g = require("ngraph.graph")();
 const dbManager = require("./dbManager")

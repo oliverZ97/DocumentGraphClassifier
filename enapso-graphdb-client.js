@@ -3,6 +3,17 @@
 // Author: Alexander Schulze
 // Source: https://github.com/innotrade/enapso-graphdb-client/blob/master/examples/examples.js
 // Source: https://www.npmjs.com/package/enapso-graphdb-client
+/*******************************************************************************************************/
+/*******************************************************************************************************/
+/*
+*description: this script is uesd to setup a connection to a graphdb repository and to communicate with the database. 
+*Different query skeletons are specified here and filled with relevant triples before sending them to th database.
+*This script is an example project and found at the github link above. 
+*I have used the basic structure and add multiple queries i need on my own. 
+*/
+/*******************************************************************************************************/
+/*******************************************************************************************************/
+
 
 // require the Enapso GraphDB Client package
 const { EnapsoGraphDBClient } = require("enapso-graphdb-client");

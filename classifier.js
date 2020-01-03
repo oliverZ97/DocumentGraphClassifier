@@ -1,3 +1,15 @@
+/*******************************************************************************************************/
+/*******************************************************************************************************/
+//https://www.ontotext.com/products/graphdb/graphdb-free/
+/*
+*author: Oliver Ziemann
+*description: this script is used to classify articles represented by their entities. 
+*It uses a graph database called Ontotext Graphdb to get the data it needs. The Algorithm used to 
+*classify these Articles is based on the cosine similarity and paired with the degree of incoming edges 
+*a node has and their betweeness Centrality.
+*/
+/*******************************************************************************************************/
+/*******************************************************************************************************/
 const cosine = require("calculate-cosine-similarity");
 const fs = require("fs");
 var dbManager = require('./dbManager');
