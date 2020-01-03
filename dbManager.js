@@ -8,6 +8,17 @@ module.exports = class DBManager {
 
     }
     /******************************************************************************************************/
+    /*
+    *description: this function handles the transformation of the data given in the parameters to triples 
+    *which are written into the database. The rdf schema has to be the first data written down. After that 
+    *the locations and persons get written into the database. Last the information about the article and 
+    *the connections to the corresponding entities is written down.
+    *@param: setup {string} - a string containing multiple triples representing the rdf schema for the graph.
+    *@param: persons {array} - an array containing the lemmas of the type person entities represented as strings.
+    *@param: locations {array} - an array containing the lemmas of the type location entities represented as strings.
+    *@param: articles {array} - an array containing all articles and their relevant information represented by objects.
+    *@return: 
+    */
     insertArticleQueries(setup, persons, locations, articles) {
         egc.insertTriple(setup);
         egc.insertLocations(locations);
@@ -19,6 +30,13 @@ module.exports = class DBManager {
         console.log(bugs);
     }
     /******************************************************************************************************/
+    /*
+    *description: transforms the property values of the given article object into triples and stores all of 
+    *them in a string. In some cases spaces and special characters are replaced with an Underscore or a hyphen.
+    *@param: article {object} - this object represents all relevant data about an article like 
+    *                           id, author, language, title, entities, etc.
+    *@return: triples {string} - contains the data of the article object transformed to multiple triples.
+    */
     createArticleTriples(article) {
         let triples = ""
         let tri_type = prefix + article.id + " rdf:Type " + prefix + "Article . \n";
@@ -56,6 +74,12 @@ module.exports = class DBManager {
         return triples;
     }
     /******************************************************************************************************/
+    /*
+    *description: this function starts a call to the database to receive all nodes existing in the database. 
+    *Because of the async nature of a database the call is wrapped inside a promise.
+    *@param: 
+    *@return: if the call is successful the results of the call are returned. Otherwise the whole promise is returned.
+    */
     getAllNodes() {
         let promise = new Promise(function (resolve, reject) {
             let nodes = egc.getAllNodes();
@@ -70,6 +94,14 @@ module.exports = class DBManager {
         return (promise);
     }
     /******************************************************************************************************/
+    /*
+    *description: this function starts a call to the database to receive all triples of all articles which 
+    *mentions the entity given by the parameter. Because of the async nature of a database the call is 
+    *wrapped inside a promise.
+    *@param: entity {string} - representing an entity of the article which needs to be classified. Spaces 
+    *                          and special characters are already replaced to match the IRIs of the database.
+    *@return: if the call is successful the results of the call are returned. Otherwise the whole promise is returned.
+    */
     getEntitiesOfArticleWithEntity(entity) {
         let promise = new Promise(function (resolve, reject) {
             let nodes = egc.getEntitiesOfArticĺeWithEntity(entity);
@@ -85,6 +117,18 @@ module.exports = class DBManager {
         return (promise);
     }
     /******************************************************************************************************/
+    /*
+    *description: this function creates triples for every property and it's value inside the object "centrality" 
+    *given by the parameter. These triples are collected and a call to the database is started everytime an 
+    *amount of 2000 triples is reached. A higher number could fail the call to the database and leads to gaps in 
+    *the data. After the call was send the variable triples ist reset to "".
+    *@param: centrality {object} - this object represents all nodes of the actual graph and the number of a 
+    *                              specific metric. The name of the node is given by a property, while the number 
+    *                              is given by the properties value.
+    *@param: centralityType {string} - shows which metric is given and used to set the correct predicate for the 
+    *                                  database triples
+    *@return: 
+    */
     insertCentrality(centrality, centralityType) {
         let allTriples = "";
         let object = JSON.parse(JSON.stringify(centrality));
