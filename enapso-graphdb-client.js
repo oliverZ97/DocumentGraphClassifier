@@ -2,6 +2,7 @@
 // (C) Copyright 2019 Innotrade GmbH, Herzogenrath, NRW, Germany
 // Author: Alexander Schulze
 // Source: https://github.com/innotrade/enapso-graphdb-client/blob/master/examples/examples.js
+// Source: https://www.npmjs.com/package/enapso-graphdb-client
 
 // require the Enapso GraphDB Client package
 const { EnapsoGraphDBClient } = require("enapso-graphdb-client");
@@ -12,7 +13,7 @@ const
     GRAPHDB_REPOSITORY = 'dgc',
     GRAPHDB_USERNAME = 'oliverZ',
     GRAPHDB_PASSWORD = 'oliverZ',
-    GRAPHDB_CONTEXT_TEST = 'http://example.org/dgc2'
+    GRAPHDB_CONTEXT = 'http://example.org/dgc2'
     ;
 
 // the default prefixes for all SPARQL queries
@@ -31,6 +32,12 @@ const EnapsoGraphDBClientDemo = module.exports = {
     graphDBEndpoint: null,
     authentication: null,
     /*******************************************************************************************************/
+    /*
+    *description: this function creates triples for all elements of locations and stores them in a string. 
+    *After that it starts a query to the database and inserts all of the triples to the graph specified at GRAPHDB_CONTEXT.
+    *@param: locations {array} - contains strings of all entities of type geo used in articles.
+    *@return:
+    */
     insertLocations: async function (locations) {
         let triples = ""
         locations.forEach(element => {
@@ -42,7 +49,7 @@ const EnapsoGraphDBClientDemo = module.exports = {
         });
         let query = `
         insert data {
-            graph <${GRAPHDB_CONTEXT_TEST}> {` +
+            graph <${GRAPHDB_CONTEXT}> {` +
             triples + `\n } }`
         let resp = await this.graphDBEndpoint.update(query);
         console.log(triples + " " +
@@ -50,6 +57,12 @@ const EnapsoGraphDBClientDemo = module.exports = {
             ':\n' + JSON.stringify(resp, null, 2));
     },
     /******************************************************************************************************/
+    /*
+    *description: this function creates triples for all elements of persons and stores them in a string. 
+    *After that it starts a query to the database and inserts all of the triples to the graph specified at GRAPHDB_CONTEXT.
+    *@param: persons {array} - contains strings of all entities of type person used in articles.
+    *@return:
+    */
     insertPersons: async function (persons) {
         let triples = ""
         persons.forEach(element => {
@@ -61,7 +74,7 @@ const EnapsoGraphDBClientDemo = module.exports = {
         });
         let query = `
         insert data {
-            graph <${GRAPHDB_CONTEXT_TEST}> {` +
+            graph <${GRAPHDB_CONTEXT}> {` +
             triples + `\n } }`
         let resp = await this.graphDBEndpoint.update(query);
         console.log(triples + " " +
@@ -69,10 +82,16 @@ const EnapsoGraphDBClientDemo = module.exports = {
             ':\n' + JSON.stringify(resp, null, 2));
     },
     /******************************************************************************************************/
+    /*
+    *description: this function gets one or multiple triples as a string and inserts them into the database 
+    *to the graph specified at GRAPHDB_CONTEXT.
+    *@param: triple {string} - one or multiple triples correct formatted in a single string.
+    *@return:
+    */
     insertTriple: async function (triple) {
         let query = `
         insert data {
-            graph <${GRAPHDB_CONTEXT_TEST}> {` +
+            graph <${GRAPHDB_CONTEXT}> {` +
             triple + `}}`
         let resp = await this.graphDBEndpoint.update(query);
         console.log(triple + " " +
@@ -80,18 +99,24 @@ const EnapsoGraphDBClientDemo = module.exports = {
             ':\n' + JSON.stringify(resp, null, 2));
     },
     /******************************************************************************************************/
+    /*
+    *description: this function executes a call to receive all nodes of the graph specified at GRPAHDB_CONTEXT 
+    *and return the result.
+    *@param:
+    *@return: query {function} - the result of the function called. Usually it should contain an object with the 
+    *result data or an object with an error.
+    */
     getAllNodes: async function () {
         console.log("Getting Nodes");
         let query = await this.graphDBEndpoint.query(`
 select ?s ?o
-	from <${GRAPHDB_CONTEXT_TEST}>
+	from <${GRAPHDB_CONTEXT}>
 where {
 	?s ?p ?o
 }`
         );
         if (query.success) {
             resp = await this.graphDBEndpoint.transformBindingsToResultSet(query);
-            //csv = await this.graphDBEndpoint.transformBindingsToCSV(query);
             //console.log("Query succeeded:\n" + JSON.stringify(resp, null, 2));
         } else {
             let lMsg = query.message;
@@ -108,11 +133,18 @@ where {
         return query;
     },
     /******************************************************************************************************/
+     /*
+    *description: this function executes a call to receive all triples of all articles which 
+    *mentions the entity given by the parameter in the graph specified at GRAPHDB_CONTEXT and return the result.
+    *@param: entity {string} - representing an entity of the article which needs to be classified. Spaces 
+    *                          and special characters are already replaced to match the IRIs of the database.
+    *@return: query {function} - the result of the function called. Usually it should contain an object with the 
+    *result data or an object with an error.
+    */
     getEntitiesOfArticĺeWithEntity: async function (entity) {
-        //console.log("ENTITY OF QUERY ", entity)
         let query = await this.graphDBEndpoint.query(`
 select *
-	from <${GRAPHDB_CONTEXT_TEST}>
+	from <${GRAPHDB_CONTEXT}>
 where { ?s dgc:mentions dgc:` + entity + `.
 ?s ?p ?o.
 dgc:` + entity + ` dgc:inDegree ?inDegree.
@@ -140,6 +172,13 @@ dgc:` + entity + ` dgc:betweenessCentrality ?betweeness.
         return query;
     },
     /******************************************************************************************************/
+    /*
+    *description: this function is the entrypoint of the script. It sets all relevant informations to 
+    *communicate with the database's endpoint and authenticates with the database. If everything was successful the 
+    *connection to the database is established.
+    *@param:
+    *@return:
+    */
     demo: async function () {
         //SET URL, REPO and PREFIXES for ENDPOINT
         this.graphDBEndpoint = new EnapsoGraphDBClient.Endpoint({
@@ -183,7 +222,7 @@ dgc:` + entity + ` dgc:betweenessCentrality ?betweeness.
     }
 }
 
-console.log("Enapso GraphDB Client Demo");
+console.log("Enapso GraphDB Client starting...");
 
 (async () => {
     await EnapsoGraphDBClientDemo.demo();
