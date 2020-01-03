@@ -2,7 +2,7 @@
 /*******************************************************************************************************/
 /*
 *author: Oliver Ziemann
-*description: this script is responsible for reading in data from files, sort them and pass them to the dbManager.<
+*description: this script is responsible for reading in data from files, sort them and pass them to the dbManager.
 */
 /*******************************************************************************************************/
 /*******************************************************************************************************/
