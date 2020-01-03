@@ -5,7 +5,14 @@ var documents = [];
 var locations = [];
 var persons = [];
 var articles = [];
-
+/******************************************************************************************************/
+/*
+*description: this function is the entrypoint of this script. Depending on the chosed option it gets 
+*the data saved in the directory ../data or the file from ../results/trainingset.json. After the extraction 
+*of all relevant data it calls the dbManager.js for the next steps. In the end the data gets written in the database.
+*@param: 
+*@return: 
+*/
 module.exports = parseJSONFile = function() {
     let isTrainingset = true;
     if(isTrainingset){
@@ -20,6 +27,13 @@ module.exports = parseJSONFile = function() {
     dbm.insertArticleQueries(setup, persons, locations, articles);
 }
 /******************************************************************************************************/
+/*
+*description: reads in all files which are in the folder ../data and parses their content to a json object. 
+*In the next step the value of the property "documents" is extracted. "documents" is an array containing 
+*all article objects. Every single article object of each file gets pushed in the global documents array together.
+*@param: 
+*@return: 
+*/
 function readFromDirData(){
     let filedir = fs.readdirSync("../data");
     filedir.forEach((file) => {
@@ -32,6 +46,12 @@ function readFromDirData(){
     })
 }
 /******************************************************************************************************/
+/*
+*description: the file "trainingset.json" is read in and is parsed to a json object. All article objects 
+*inside the json object is pushed into the global documents array above.
+*@param: 
+*@return: 
+*/
 function readFromTrainingSet(){
     let filestring = fs.readFileSync("../results/trainingset.json");
     let fileobj = JSON.parse(filestring);
@@ -41,6 +61,13 @@ function readFromTrainingSet(){
     })
 }
 /******************************************************************************************************/
+/*
+*description: this function creates new article objects for each article object in documents. 
+*Only the relevant data is taken from the old objects to reduce the amount of data that needs to be worked with 
+*in the next steps. The new objects gets pushed into a global array called article.
+*@param: 
+*@return: 
+*/
 function setArticles() {
     documents.forEach((elem) => {
         let object = {
@@ -58,11 +85,24 @@ function setArticles() {
     console.log(articles.length);
 }
 /******************************************************************************************************/
+/*
+*description: extract the value of the property documents of the given jsonobj and returns it.
+*@param: jsonobj {object} - an object containing an amount of documents which is needed but also more 
+*                           data which is not relevant for any other step of the whole classifier.
+*@return: docs {array} - an array containing all article objects needed in the next steps.
+*/
 function extractDocuments(jsonobj) {
     let docs = jsonobj.documents;
     return docs;
 }
 /******************************************************************************************************/
+/*
+*description: this function extracts all entities of the type geo of each article and pushes their lemma 
+*to an help array. Thereafter the duplicate entities are removed and the remaining entities get saved in 
+*the global array locations.
+*@param: 
+*@return: 
+*/
 function extractLocations() {
     let help_array = [];
     documents.forEach((art) => {
@@ -75,6 +115,13 @@ function extractLocations() {
     locations = unique;
 }
 /******************************************************************************************************/
+/*
+*description: this function extracts all entities of the type person of each article and pushes their lemma 
+*to an help array. Thereafter the duplicate entities are removed and the remaining entities get saved in 
+*the global array persons.
+*@param: 
+*@return: 
+*/
 function extractPersons() {
     let help_array = [];
     let bugs = [];
@@ -88,6 +135,12 @@ function extractPersons() {
     persons = unique;
 }
 /******************************************************************************************************/
+/*
+*description: this function simply contains an amount of triples representing the rdf schema for the 
+*graph that is written in the next step. 
+*@param: 
+*@return: triples {string} - contains triples which represent the rules of a rdf graph, called a rdf schema.
+*/
 function setupSchema() {
     let triples = "" +
     "dgc:Article rdf:Type rdf:Class. \n dgc:Location rdf:Type rdf:Class. \n dgc:Person rdf:Type rdf:Class. \n" +
