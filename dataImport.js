@@ -156,7 +156,7 @@ function setupSchema() {
     "dgc:hasRealCategory rdf:Type rdf:Property. \n dgc:hasLanguage rdf:Type rdf:Property. \n dgc:hasTitle rdf:Type rdf:Property. \n" +
     "dgc:nodeDegree rdf:Type rdf:Property. \n dgc:inDegree rdf:Type rdf:Property. \n dgc:outDegree rdf:Type rdf:Property. \n" +
     "dgc:betweenessCentrality rdf:Type rdf:Property. \n dgc:hasValue rdf:Type rdf:Property. \n" +
-    "dgc:hasAuthor rdfs:domain dgc:Article. \n dgc:Author rdfs:range rdfs:Literal. \n dgc:mentions rdfs:domain dgc:Article. \n" +
+    "dgc:hasAuthor rdfs:domain dgc:Article. \n dgc:hasAuthor rdfs:range rdfs:Literal. \n dgc:mentions rdfs:domain dgc:Article. \n" +
     "dgc:mentions rdfs:range dgc:Person. \n dgc:mentions rdfs:range dgc:Location. \n dgc:hasId rdfs:domain dgc:Article. \n" +
     "dgc:hasId rdfs:range rdfs:Literal. \n dgc:hasRealCategory rdfs:domain dgc:Article. \n dgc:hasRealCategory rdfs:range rdfs:Literal. \n" +
     "dgc:hasLanguage rdfs:domain dgc:Article. \n dgc:hasLanguage rdfs:range rdfs:Literal. \n dgc:hasTitle rdfs:domain dgc:Article. \n" + 
