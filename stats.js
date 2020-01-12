@@ -8,6 +8,7 @@
 /*******************************************************************************************************/
 /*******************************************************************************************************/
 var fs = require('fs');
+const striphtml = require("string-strip-html")
 var documents = [];
 /******************************************************************************************************/
 /*
@@ -80,7 +81,8 @@ function calcStats() {
 */
 function countWords(doc) {
     if(doc !== undefined){
-        return doc.split(" ").length;
+        let removeTags = striphtml(doc)
+        return removeTags.split(" ").length;
     } else {
         return 0;
     }
