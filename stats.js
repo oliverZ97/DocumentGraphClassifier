@@ -30,14 +30,19 @@ function extractDocuments(jsonobj) {
 *@return: 
 */
 function readFromDirData(){
-    let filedir = fs.readdirSync("../data");
-    filedir.forEach((file) => {
-        let filestring = fs.readFileSync("../data/" + file);
-        let fileobj = JSON.parse(filestring);
-        let docs = extractDocuments(fileobj);
-        docs.forEach((elem) => {
-            documents.push(elem);
-        })
+    // let filedir = fs.readdirSync("../data");
+    // filedir.forEach((file) => {
+    //     let filestring = fs.readFileSync("../data/" + file);
+    //     let fileobj = JSON.parse(filestring);
+    //     let docs = extractDocuments(fileobj);
+    //     docs.forEach((elem) => {
+    //         documents.push(elem);
+    //     })
+    // })
+    let filestring = fs.readFileSync("./testset.json");
+    let fileobj = JSON.parse(filestring);
+    fileobj.forEach((doc) => {
+        documents.push(doc)
     })
     console.log(documents.length)
     calcStats();
@@ -71,7 +76,7 @@ function calcStats() {
     "Average Number of Entities(Persons): " + sumOfPersons/counter + "\n" +
     "Average Number of Entities(Locations): " + sumOfLocations/counter
     
-    fs.writeFileSync("../results/stats.txt", string);
+    fs.writeFileSync("../results/stats_testset.txt", string);
 }
 /******************************************************************************************************/
 /*
