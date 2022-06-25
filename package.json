@@ -30,7 +30,7 @@
     "ngraph.centrality": "^2.0.0",
     "ngraph.graph": "^19.0.0",
     "node": "^13.1.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "node-sass": "^4.13.0",
     "string-strip-html": "^4.3.13"
   },
